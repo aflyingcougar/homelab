@@ -38,3 +38,8 @@ variable "ubuntu_name" {
   description = "CentOS name (ie: image_path)"
   type        = string
 }
+
+variable "vm_domain" {
+  description = "The domain name for the virutal machines"
+  type        = string
+}
