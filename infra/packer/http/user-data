@@ -16,7 +16,7 @@ autoinstall:
     install: false
   identity:
     hostname: ubuntu22042
-    password: $6$gAuC7K8GM/MCmvRV$ccztk8.MMhgIcLd1BQX.o5F7bFgAbrJRHtfK3hBoLKUhnzRA2wIMevPdIs/JbC6YiV5utO/BkQKInY4ONVmth1
+    password: $6$Xf994Czq6e7LAcEE$QQN/AiF44jLwHebWFyc7TpE6K8WagewJmYhhlIjf4YEqLP23TJ4KNaMbErLX3yiJiicQJ9R5G4oETChZ2tw1D.
     realname: ubuntu
     username: ubuntu
   kernel:
@@ -26,19 +26,18 @@ autoinstall:
     toggle: null
     variant: ''
   locale: en_US.UTF-8
-  # network:
-  #   ethernets:
-  #     ens192:
-  #       dhcp4: true
-  #   version: 2
   packages:
     [open-vm-tools]
   source:
     id: ubuntu-server-minimal
     search_drivers: false
   ssh:
-    allow-pw: true
-    authorized-keys: []
+    allow-pw: false
+    authorized-keys:
+    - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD22Y5olLgiJbsa9rtX3fulMDUv/l2qYUxdnDOaHOlC1QPQXhjOG2Fx9MNqzPznTO73gDFKYnrxpCoKfUnVdwCEHwZhkYIgbmx+aNWprM9at1ibw+XmIGIAN6mD5Qm0PEauAmS6FBeEau9aewRZVMq15lyl07FfLJoS873iOX4D0C3yVM1gpA+dG5H/Brr/HCHWibDANfEM9N2AKOXmsVYpxcIGH/cLFegRokT/WCrenP2coWDGTlbDRizJhDXIMEprQzJBBx1e9m/i/PMVL2CzNYRkJEe8qyzus3Pk9mVRot/S/widaMjAg4NqNMdIV4aScy7N9zwcuLliUhu/e7CUWAvuMhBP6kRxEN/TAjYe9srkkUzPpb9rFC6kzeiWmVIZYCkqi45O/M8amzgfgl7uq6seu37nxbHw9XxZvcZ/b5DGJwgXeIxAVJc0TTFSty97H7tsMUk8cEfHt2G359WBAwQ6WG05QhCN2v/Lqh/H6IRhJip9HD3u840+UuVJ7F8=
+      aflyingcougar@github/78496432 # ssh-import-id gh:aflyingcougar'
+    - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDOLmbaQvQphSCp1nffoft7f0nDwLIcp8J57dN71iIDpCbPqaWGsv8xJswzXLZ+K0/AerSdnYVaib3WiHNGPJYXs4F9IIk7pLkKXJAQYoQYI01qTcDAkth6jbGNJF1J0eFGv/D4ey9L4waEGpEmqQRrdrLpZmXQTJ0VPHn3R/nuIpMufi3XO0ioQI1ajZEJ8npArZa+lVGeFpKOlpe5VDF+klzRKIhWopMrCZGtff1q9E2H/E1rcmyF6DKQhtEJcOjaJZQWSiWdyMH++mX/9jvKZX98OPXd8LKhKrzU29oNBxjBqiald+CRSWmrzzDLeRslSOlw0zg0EWhgqTFO3Km1Eej4buOGSOs3FZfrzejo1QENt1tPGC3yVLyikpStdWJB4yZeHTl+aF9m8QPoIxj678q09V4MlhcqPaf2yr+KhQ+Nw3MaVjZkB2hyCDm1iRSHZfllYIh2CdnmhGEQPyzcXSVEO0qqSwsSoNfXx200c1Sf5sKjpk2LZHHupmBJTpu9KI1yw5YG/Eq33HaPlOPXtbqaV2LJld3C/83oBGFxsecx5U6rHSI+6g/wnzZc+Ucy64k3Gy80MJfhY272PqcB9KnI9gbOQJsJDB2ZDgMo7ZU7aszEVuAQkJoZJiOuHrndiK6CgQRYw+/W+CqhApgXBSFpH27UVZH3gpi4n8lGQw==
+      aflyingcougar@github/78497409 # ssh-import-id gh:aflyingcougar'
     install-server: true
   storage:
     config:
