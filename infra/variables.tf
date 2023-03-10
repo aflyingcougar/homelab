@@ -43,3 +43,8 @@ variable "vm_domain" {
   description = "The domain name for the virutal machines"
   type        = string
 }
+
+variable "vm_folder" {
+  description = "The folder where the vm(s) will be deployed to"
+  type        = string
+}

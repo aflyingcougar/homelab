@@ -35,6 +35,7 @@ resource "vsphere_virtual_machine" "k3s-node-01" {
   name             = "k3s-node-01"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
+  folder           = var.vm_folder
 
   num_cpus = 2
   memory   = 4096
@@ -72,6 +73,7 @@ resource "vsphere_virtual_machine" "k3s-node-02" {
   name             = "k3s-node-02"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
+  folder           = var.vm_folder
 
   num_cpus = 2
   memory   = 4096
@@ -109,6 +111,7 @@ resource "vsphere_virtual_machine" "k3s-node-03" {
   name             = "k3s-node-03"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
+  folder           = var.vm_folder
 
   num_cpus = 2
   memory   = 4096
