@@ -63,7 +63,8 @@ build {
     "source.vsphere-iso.this"
   ]
 
-  provisioner "shell-local" {
-    inline  = ["echo the address is: $PACKER_HTTP_ADDR and build name is: $PACKER_BUILD_NAME"]
+  provisioner "shell" {
+	execute_command = "echo 'ubuntu' | sudo -S -E bash '{{.Path}}'"
+	script = "provision_scripts/provision.sh"
   }
 }
