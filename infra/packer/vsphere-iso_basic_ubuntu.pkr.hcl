@@ -4,6 +4,8 @@ source "vsphere-iso" "this" {
   password          = var.vsphere_password
   datacenter        = var.datacenter
   host              = var.host
+  folder            = var.vm_folder
+
   insecure_connection  = true
 
   vm_name = "tf-ubuntu-22042"

@@ -32,3 +32,8 @@ variable "network_name" {
   type    = string
   default = ""
 }
+
+variable "vm_folder" {
+  type    = string
+  default = ""
+}
