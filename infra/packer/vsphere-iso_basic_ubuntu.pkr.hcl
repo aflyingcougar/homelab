@@ -13,10 +13,12 @@ source "vsphere-iso" "this" {
 
   ssh_username = "ubuntu"
   ssh_password = "ubuntu"
-  ssh_timeout = "10m"
+  ssh_timeout = "15m"
 
-  CPUs =             1
-  RAM =              1024
+  CPUs          = 1
+  CPU_hot_plug  = true
+  RAM           = 1024
+  RAM_hot_plug  = true
   RAM_reserve_all = true
 
   disk_controller_type =  ["pvscsi"]
@@ -54,9 +56,9 @@ source "vsphere-iso" "this" {
     "linux /casper/vmlinuz --- autoinstall ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"<enter><wait>",
     "initrd /casper/initrd<enter><wait>",
     "boot<enter>",
-    "<enter><f10><wait>" 
+    "<enter><f10><wait>"
   ]
-  
+
   http_directory = "./http"
 }
 
