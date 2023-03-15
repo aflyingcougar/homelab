@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o pipefail
+# set -o errexit
+# set -o pipefail
 
 # shellcheck disable=SC2155
 export PROJECT_DIR=$(git rev-parse --show-toplevel)
@@ -317,7 +317,7 @@ verify_ansible_hosts() {
     local node_host_key=
     local default_control_node_prefix=
     local default_worker_node_prefix=
-    local client_host_key=
+    local existing_host_key=
     default_control_node_prefix="BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX"
     default_worker_node_prefix="BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX"
     _has_optional_envar "${default_control_node_prefix}"
@@ -348,16 +348,12 @@ verify_ansible_hosts() {
             _log "ERROR(${FUNCNAME[0]})" "The ingress load balancer IP '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
-
         if [ -n "$existing_host_key" ]; then
-            if [ "$existing_host_key" != "$node_host_key" ]; then
-                ssh-keygen -R ${!var} >/dev/null 2>&1
-                echo "$node_host_key" >> ~/.ssh/known_hosts
-            fi
+            ssh-keygen -R ${!var} >/dev/null 2>&1
+            echo "$node_host_key" >> ~/.ssh/known_hosts
         else
             echo "$node_host_key" >> ~/.ssh/known_hosts
         fi
-
         if ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" "true"; then
             _log "INFO(${FUNCNAME[0]})" "SSH into host '${!var}' with username '${!node_username}' was successfull"
         else
