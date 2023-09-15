@@ -13,7 +13,7 @@ source "vsphere-iso" "this" {
 
   ssh_username = "ubuntu"
   ssh_password = "ubuntu"
-  ssh_timeout = "15m"
+  ssh_timeout = "20m"
 
   CPUs          = 1
   CPU_hot_plug  = true
