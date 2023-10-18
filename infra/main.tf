@@ -27,7 +27,7 @@ data "vsphere_network" "network" {
 }
 
 data "vsphere_virtual_machine" "ubuntu" {
-  name          = "var.ubuntu_name"
+  name          = var.ubuntu_name
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
