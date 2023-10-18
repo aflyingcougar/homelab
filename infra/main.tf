@@ -27,7 +27,7 @@ data "vsphere_network" "network" {
 }
 
 data "vsphere_virtual_machine" "ubuntu" {
-  name          = "/${var.datacenter}/vm/${var.ubuntu_name}"
+  name          = "var.ubuntu_name"
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
@@ -41,9 +41,9 @@ resource "vsphere_virtual_machine" "k3s-control-01" {
   memory   = 2048
 
   network_interface {
-    network_id = data.vsphere_network.network.id
-	use_static_mac = true
-	mac_address = "00:50:56:00:00:01"
+    network_id     = data.vsphere_network.network.id
+    use_static_mac = true
+    mac_address    = "00:50:56:00:00:01"
   }
 
   wait_for_guest_net_timeout = -1
@@ -59,13 +59,13 @@ resource "vsphere_virtual_machine" "k3s-control-01" {
 
   clone {
     template_uuid = data.vsphere_virtual_machine.ubuntu.id
-	customize {
-		linux_options {
-			host_name = "k3s-control-01"
-			domain = var.vm_domain
-		}
-		network_interface {}
-	}
+    customize {
+      linux_options {
+        host_name = "k3s-control-01"
+        domain    = var.vm_domain
+      }
+      network_interface {}
+    }
   }
 }
 
@@ -79,9 +79,9 @@ resource "vsphere_virtual_machine" "k3s-control-02" {
   memory   = 2048
 
   network_interface {
-    network_id = data.vsphere_network.network.id
-	use_static_mac = true
-	mac_address = "00:50:56:00:00:02"
+    network_id     = data.vsphere_network.network.id
+    use_static_mac = true
+    mac_address    = "00:50:56:00:00:02"
   }
 
   wait_for_guest_net_timeout = -1
@@ -97,13 +97,13 @@ resource "vsphere_virtual_machine" "k3s-control-02" {
 
   clone {
     template_uuid = data.vsphere_virtual_machine.ubuntu.id
-	customize {
-		linux_options {
-			host_name = "k3s-control-02"
-			domain = var.vm_domain
-		}
-		network_interface {}
-	}
+    customize {
+      linux_options {
+        host_name = "k3s-control-02"
+        domain    = var.vm_domain
+      }
+      network_interface {}
+    }
   }
 }
 
@@ -117,9 +117,9 @@ resource "vsphere_virtual_machine" "k3s-control-03" {
   memory   = 2048
 
   network_interface {
-    network_id = data.vsphere_network.network.id
-	use_static_mac = true
-	mac_address = "00:50:56:00:00:03"
+    network_id     = data.vsphere_network.network.id
+    use_static_mac = true
+    mac_address    = "00:50:56:00:00:03"
   }
 
   wait_for_guest_net_timeout = -1
@@ -135,13 +135,13 @@ resource "vsphere_virtual_machine" "k3s-control-03" {
 
   clone {
     template_uuid = data.vsphere_virtual_machine.ubuntu.id
-	customize {
-		linux_options {
-			host_name = "k3s-control-03"
-			domain = var.vm_domain
-		}
-		network_interface {}
-	}
+    customize {
+      linux_options {
+        host_name = "k3s-control-03"
+        domain    = var.vm_domain
+      }
+      network_interface {}
+    }
   }
 }
 
@@ -155,9 +155,9 @@ resource "vsphere_virtual_machine" "k3s-worker-01" {
   memory   = 4096
 
   network_interface {
-    network_id = data.vsphere_network.network.id
-	use_static_mac = true
-	mac_address = "00:50:56:00:00:04"
+    network_id     = data.vsphere_network.network.id
+    use_static_mac = true
+    mac_address    = "00:50:56:00:00:04"
   }
 
   wait_for_guest_net_timeout = -1
@@ -173,13 +173,13 @@ resource "vsphere_virtual_machine" "k3s-worker-01" {
 
   clone {
     template_uuid = data.vsphere_virtual_machine.ubuntu.id
-	customize {
-		linux_options {
-			host_name = "k3s-worker-01"
-			domain = var.vm_domain
-		}
-		network_interface {}
-	}
+    customize {
+      linux_options {
+        host_name = "k3s-worker-01"
+        domain    = var.vm_domain
+      }
+      network_interface {}
+    }
   }
 }
 
@@ -193,9 +193,9 @@ resource "vsphere_virtual_machine" "k3s-worker-02" {
   memory   = 4096
 
   network_interface {
-    network_id = data.vsphere_network.network.id
-	use_static_mac = true
-	mac_address = "00:50:56:00:00:05"
+    network_id     = data.vsphere_network.network.id
+    use_static_mac = true
+    mac_address    = "00:50:56:00:00:05"
   }
 
   wait_for_guest_net_timeout = -1
@@ -211,13 +211,13 @@ resource "vsphere_virtual_machine" "k3s-worker-02" {
 
   clone {
     template_uuid = data.vsphere_virtual_machine.ubuntu.id
-	customize {
-		linux_options {
-			host_name = "k3s-worker-02"
-			domain = var.vm_domain
-		}
-		network_interface {}
-	}
+    customize {
+      linux_options {
+        host_name = "k3s-worker-02"
+        domain    = var.vm_domain
+      }
+      network_interface {}
+    }
   }
 }
 
@@ -231,9 +231,9 @@ resource "vsphere_virtual_machine" "k3s-worker-03" {
   memory   = 4096
 
   network_interface {
-    network_id = data.vsphere_network.network.id
-	use_static_mac = true
-	mac_address = "00:50:56:00:00:06"
+    network_id     = data.vsphere_network.network.id
+    use_static_mac = true
+    mac_address    = "00:50:56:00:00:06"
   }
 
   wait_for_guest_net_timeout = -1
@@ -249,23 +249,23 @@ resource "vsphere_virtual_machine" "k3s-worker-03" {
 
   clone {
     template_uuid = data.vsphere_virtual_machine.ubuntu.id
-	customize {
-		linux_options {
-			host_name = "k3s-worker-03"
-			domain = var.vm_domain
-		}
-		network_interface {}
-	}
+    customize {
+      linux_options {
+        host_name = "k3s-worker-03"
+        domain    = var.vm_domain
+      }
+      network_interface {}
+    }
   }
 }
 
 output "vm_ips" {
   value = {
-	ip_1 = vsphere_virtual_machine.k3s-control-01.guest_ip_addresses
-	ip_2 = vsphere_virtual_machine.k3s-control-02.guest_ip_addresses
-	ip_3 = vsphere_virtual_machine.k3s-control-03.guest_ip_addresses
-	ip_4 = vsphere_virtual_machine.k3s-worker-01.guest_ip_addresses
-	ip_5 = vsphere_virtual_machine.k3s-worker-02.guest_ip_addresses
-	ip_6 = vsphere_virtual_machine.k3s-worker-03.guest_ip_addresses
+    ip_1 = vsphere_virtual_machine.k3s-control-01.guest_ip_addresses
+    ip_2 = vsphere_virtual_machine.k3s-control-02.guest_ip_addresses
+    ip_3 = vsphere_virtual_machine.k3s-control-03.guest_ip_addresses
+    ip_4 = vsphere_virtual_machine.k3s-worker-01.guest_ip_addresses
+    ip_5 = vsphere_virtual_machine.k3s-worker-02.guest_ip_addresses
+    ip_6 = vsphere_virtual_machine.k3s-worker-03.guest_ip_addresses
   }
 }
