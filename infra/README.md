@@ -16,5 +16,13 @@ The Git repository contains the following directories under `infra`
 ## Build the Ubuntu template to your vSphere cluster
 At the root of the `infra/packer` directory:
 ```sh
+$ packer init .
 $ packer build .
+```
+## Provision the VMs from template
+After the template is successfully created, change directories to the `infra` direcotry, initialize the Terraform workspace, and apply the configuration.
+```sh
+$ cd ..
+$ terraform init
+$ terraform apply
 ```

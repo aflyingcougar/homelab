@@ -1,3 +1,12 @@
+packer {
+  required_plugins {
+    vsphere = {
+      source  = "github.com/hashicorp/vsphere"
+      version = "~> 1"
+    }
+  }
+}
+
 source "vsphere-iso" "this" {
   vcenter_server    = var.vsphere_server
   username          = var.vsphere_user
