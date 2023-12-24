@@ -21,12 +21,12 @@ source "vsphere-iso" "this" {
   guest_os_type = "ubuntu64Guest"
 
   ssh_username = "ubuntu"
-  ssh_password = "ubuntu"
+  ssh_password = var.sudo_password
   ssh_timeout = "20m"
 
-  CPUs          = 1
+  CPUs          = 2
   CPU_hot_plug  = true
-  RAM           = 1024
+  RAM           = 4096
   RAM_hot_plug  = true
   RAM_reserve_all = true
 
