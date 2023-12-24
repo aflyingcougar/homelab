@@ -10,6 +10,7 @@ variable "vsphere_user" {
 
 variable "vsphere_password" {
   type    = string
+  sensitive = true
   default = ""
 }
 
@@ -35,5 +36,11 @@ variable "network_name" {
 
 variable "vm_folder" {
   type    = string
+  default = ""
+}
+
+variable "sudo_password" {
+  type = string
+  sensitive = true
   default = ""
 }

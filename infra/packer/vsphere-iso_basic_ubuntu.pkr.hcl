@@ -77,7 +77,7 @@ build {
   ]
 
   provisioner "shell" {
-	execute_command = "echo 'ubuntu' | sudo -S -E bash '{{.Path}}'"
+	execute_command = "echo ${var.sudo_password} | sudo -S -E bash '{{.Path}}'"
 	script = "provision_scripts/provision.sh"
   }
 }

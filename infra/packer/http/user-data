@@ -16,7 +16,7 @@ autoinstall:
     install: false
   identity:
     hostname: ubuntu22042
-    password: $6$Xf994Czq6e7LAcEE$QQN/AiF44jLwHebWFyc7TpE6K8WagewJmYhhlIjf4YEqLP23TJ4KNaMbErLX3yiJiicQJ9R5G4oETChZ2tw1D.
+    password: $6$NM7dE64G8/qxLuom$87ohOJeoytKJ0.9kuToCLM0PE8rqGusF9yyMEuVFS8BMjO1Cn6G5bCrVnXHaJHwjpbLz834jwuQyzCYjJHK.b/
     realname: ubuntu
     username: ubuntu
   kernel:
