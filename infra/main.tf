@@ -21,9 +21,15 @@ data "vsphere_datastore" "datastore" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
-data "vsphere_network" "network" {
-  name          = var.network_name
+data "vsphere_distributed_virtual_switch" "vds" {
+  name          = var.dswitch_name
   datacenter_id = data.vsphere_datacenter.dc.id
+}
+
+data "vsphere_network" "network" {
+  name                            = var.network_name
+  datacenter_id                   = data.vsphere_datacenter.dc.id
+  distributed_virtual_switch_uuid = data.vsphere_distributed_virtual_switch.vds.id
 }
 
 data "vsphere_virtual_machine" "ubuntu" {

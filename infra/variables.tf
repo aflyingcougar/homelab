@@ -34,6 +34,11 @@ variable "network_name" {
   type        = string
 }
 
+variable "dswitch_name" {
+  description = "Distributed Switch name"
+  type        = string
+}
+
 variable "ubuntu_name" {
   description = "CentOS name (ie: image_path)"
   type        = string
