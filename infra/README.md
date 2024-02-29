@@ -35,3 +35,6 @@ $ cd ..
 $ terraform init
 $ terraform apply
 ```
+
+## Post-Deploy
+☢️ If you run into problems, you can run `terraform destroy` to destroy the VMs and start over.
