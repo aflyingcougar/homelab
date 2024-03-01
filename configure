@@ -258,12 +258,18 @@ verify_metallb() {
 
 verify_git_repository() {
     _has_envar "BOOTSTRAP_GIT_REPOSITORY"
+    _has_envar "BOOTSTRAP_GIT_BRANCH"
     export GIT_TERMINAL_PROMPT=0
     pushd "$(mktemp -d)" >/dev/null 2>&1
-    [ "$(git ls-remote "${BOOTSTRAP_GIT_REPOSITORY}" 2> /dev/null)" ] || {
+    if [[ "$(git ls-remote "${BOOTSTRAP_GIT_REPOSITORY}" 2> /dev/null)" ]]; then
+        [ "$(git ls-remote --heads "${BOOTSTRAP_GIT_REPOSITORY}" "${BOOTSTRAP_GIT_BRANCH}" 2> /dev/null)" ] || {
+            _log "ERROR(${FUNCNAME[0]})" "Unable to find the remote Git branch '${BOOTSTRAP_GIT_BRANCH}' in the repository '${BOOTSTRAP_GIT_REPOSITORY}'"
+            exit 1
+        }
+    else
         _log "ERROR(${FUNCNAME[0]})" "Unable to find the remote Git repository '${BOOTSTRAP_GIT_REPOSITORY}'"
         exit 1
-    }
+    fi
     popd >/dev/null 2>&1
     export GIT_TERMINAL_PROMPT=1
 }
