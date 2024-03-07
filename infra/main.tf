@@ -172,7 +172,7 @@ resource "vsphere_virtual_machine" "k3s-worker-01" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 32
+    size             = 64
   }
 
   guest_id = "ubuntu64Guest"
