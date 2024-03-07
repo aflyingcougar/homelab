@@ -157,8 +157,8 @@ resource "vsphere_virtual_machine" "k3s-worker-01" {
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
 
-  num_cpus = 2
-  memory   = 4096
+  num_cpus = 4
+  memory   = 8192
 
   network_interface {
     network_id     = data.vsphere_network.network.id
