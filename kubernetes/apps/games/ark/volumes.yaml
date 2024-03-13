@@ -18,6 +18,20 @@ spec:
     readOnly: False
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-game
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  volumeName: ark-game
+  resources:
+    requests:
+      storage: 100Gi
+  selector:
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: ark-save
@@ -36,6 +50,20 @@ spec:
     readOnly: False
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-save
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  volumeName: ark-save
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: ark-cluster
@@ -52,4 +80,18 @@ spec:
     path: /games/ark/cluster/
     server: 192.168.20.6
     readOnly: False
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-cluster
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  volumeName: ark-cluster
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
 ---
