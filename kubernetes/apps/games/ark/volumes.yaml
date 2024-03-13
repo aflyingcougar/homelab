@@ -21,6 +21,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: ark-game
+  namespace: games
 spec:
   accessModes:
     - ReadWriteMany
@@ -53,6 +54,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: ark-save
+  namespace: games
 spec:
   accessModes:
     - ReadWriteMany
@@ -85,6 +87,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: ark-cluster
+  namespace: games
 spec:
   accessModes:
     - ReadWriteMany
