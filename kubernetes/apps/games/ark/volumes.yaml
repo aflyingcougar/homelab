@@ -16,3 +16,40 @@ spec:
     path: /games/ark/game/
     server: 192.168.20.6
     readOnly: False
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ark-save
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+  nfs:
+    path: /games/ark/save/
+    server: 192.168.20.6
+    readOnly: False
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ark-cluster
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+  nfs:
+    path: /games/ark/cluster/
+    server: 192.168.20.6
+    readOnly: False
+---
