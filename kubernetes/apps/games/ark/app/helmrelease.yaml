@@ -7,7 +7,7 @@ spec:
   interval: 15m
   chart:
     spec:
-      chart: charts/ark-cluster
+      chart: ark-cluster
       version: 0.2.1
       sourceRef:
         kind: HelmRepository
