@@ -13,7 +13,7 @@ spec:
   mountOptions:
     - hard
   nfs:
-    path: /cannon-cove/games/ark/game/
+    path: /mnt/user/cannon-cove/games/ark/game/
     server: 192.168.20.6
     readOnly: False
 ---
@@ -46,7 +46,7 @@ spec:
   mountOptions:
     - hard
   nfs:
-    path: /cannon-cove/games/ark/save/theisland/
+    path: /mnt/user/cannon-cove/games/ark/save/theisland/
     server: 192.168.20.6
     readOnly: False
 ---
@@ -79,7 +79,7 @@ spec:
   mountOptions:
     - hard
   nfs:
-    path: /cannon-cove/games/ark/cluster/
+    path: /mnt/user/cannon-cove/games/ark/cluster/
     server: 192.168.20.6
     readOnly: False
 ---
