@@ -14,7 +14,7 @@ spec:
     - hard
   nfs:
     path: /mnt/user/cannon-cove/games/ark/game/
-    server: 192.168.20.6
+    server: 192.168.20.8
     readOnly: False
 ---
 apiVersion: v1
@@ -47,7 +47,7 @@ spec:
     - hard
   nfs:
     path: /mnt/user/cannon-cove/games/ark/save/theisland/
-    server: 192.168.20.6
+    server: 192.168.20.8
     readOnly: False
 ---
 apiVersion: v1
@@ -80,7 +80,7 @@ spec:
     - hard
   nfs:
     path: /mnt/user/cannon-cove/games/ark/cluster/
-    server: 192.168.20.6
+    server: 192.168.20.8
     readOnly: False
 ---
 apiVersion: v1
