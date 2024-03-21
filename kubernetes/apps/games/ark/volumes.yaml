@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ark-save
+  name: ark-save-theisland
 spec:
   capacity:
     storage: 10Gi
@@ -46,20 +46,20 @@ spec:
   mountOptions:
     - hard
   nfs:
-    path: /games/ark/save/
+    path: /games/ark/save/theisland/
     server: 192.168.20.6
     readOnly: False
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ark-save
+  name: ark-save-theisland
   namespace: games
 spec:
   accessModes:
     - ReadWriteMany
   volumeMode: Filesystem
-  volumeName: ark-save
+  volumeName: ark-save-theisland
   resources:
     requests:
       storage: 10Gi
