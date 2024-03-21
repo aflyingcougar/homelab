@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: ark-server-charts
+  name: ark
   namespace: games
 spec:
   interval: 15m
