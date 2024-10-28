@@ -39,16 +39,6 @@ variable "dswitch_name" {
   type        = string
 }
 
-variable "ubuntu_name" {
-  description = "CentOS name (ie: image_path)"
-  type        = string
-}
-
-variable "vm_domain" {
-  description = "The domain name for the virutal machines"
-  type        = string
-}
-
 variable "vm_folder" {
   description = "The folder where the vm(s) will be deployed to"
   type        = string
@@ -61,15 +51,5 @@ variable "content_library" {
 
 variable "talos_ovf" {
   description = "The name of the talos ovf content library item (e.g. talos-1.7.5)"
-  type        = string
-}
-
-variable "talos_cp_config_path" {
-  description = "Path to the talos control plane config file"
-  type        = string
-}
-
-variable "talos_wk_config_path" {
-  description = "Path to the talos worker config file"
   type        = string
 }

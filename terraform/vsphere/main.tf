@@ -43,11 +43,11 @@ data "vsphere_content_library_item" "talos_ovf" {
 }
 
 data "local_file" "talos_cp_config" {
-  filename = var.talos_cp_config_path
+  filename = "../../talos/controlplane.yaml"
 }
 
 data "local_file" "talos_wk_config" {
-  filename = var.talos_wk_config_path
+  filename = "../../talos/worker.yaml"
 }
 
 resource "vsphere_virtual_machine" "k8s-control-01" {
