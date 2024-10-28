@@ -53,3 +53,23 @@ variable "vm_folder" {
   description = "The folder where the vm(s) will be deployed to"
   type        = string
 }
+
+variable "content_library" {
+  description = "The name of the content library"
+  type        = string
+}
+
+variable "talos_ovf" {
+  description = "The name of the talos ovf content library item (e.g. talos-1.7.5)"
+  type        = string
+}
+
+variable "talos_cp_config_path" {
+  description = "Path to the talos control plane config file"
+  type        = string
+}
+
+variable "talos_wk_config_path" {
+  description = "Path to the talos worker config file"
+  type        = string
+}

@@ -32,19 +32,32 @@ data "vsphere_network" "network" {
   distributed_virtual_switch_uuid = data.vsphere_distributed_virtual_switch.vds.id
 }
 
-data "vsphere_virtual_machine" "ubuntu" {
-  name          = var.ubuntu_name
-  datacenter_id = data.vsphere_datacenter.dc.id
+data "vsphere_content_library" "content_library" {
+  name = var.content_library
 }
 
-resource "vsphere_virtual_machine" "k3s-control-01" {
-  name             = "k3s-control-01"
+data "vsphere_content_library_item" "talos_ovf" {
+  name       = var.talos_ovf
+  type       = "ovf"
+  library_id = data.vsphere_content_library.content_library.id
+}
+
+data "local_file" "talos_cp_config" {
+  filename = var.talos_cp_config_path
+}
+
+data "local_file" "talos_wk_config" {
+  filename = var.talos_wk_config_path
+}
+
+resource "vsphere_virtual_machine" "k8s-control-01" {
+  name             = "k8s-control-01"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
 
-  num_cpus = 1
-  memory   = 2048
+  num_cpus = 2
+  memory   = 4096
 
   network_interface {
     network_id     = data.vsphere_network.network.id
@@ -58,31 +71,29 @@ resource "vsphere_virtual_machine" "k3s-control-01" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 32
+    size             = 10
   }
 
-  guest_id = "ubuntu64Guest"
+  enable_disk_uuid = true
+  guest_id         = "other3xLinux64Guest"
 
   clone {
-    template_uuid = data.vsphere_virtual_machine.ubuntu.id
-    customize {
-      linux_options {
-        host_name = "k3s-control-01"
-        domain    = var.vm_domain
-      }
-      network_interface {}
-    }
+    template_uuid = data.vsphere_content_library_item.talos_ovf.id
+  }
+
+  extra_config = {
+    "guestinfo.talos.config" = data.local_file.talos_cp_config.content_base64
   }
 }
 
-resource "vsphere_virtual_machine" "k3s-control-02" {
-  name             = "k3s-control-02"
+resource "vsphere_virtual_machine" "k8s-control-02" {
+  name             = "k8s-control-02"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
 
-  num_cpus = 1
-  memory   = 2048
+  num_cpus = 2
+  memory   = 4096
 
   network_interface {
     network_id     = data.vsphere_network.network.id
@@ -96,31 +107,29 @@ resource "vsphere_virtual_machine" "k3s-control-02" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 32
+    size             = 10
   }
 
-  guest_id = "ubuntu64Guest"
+  enable_disk_uuid = true
+  guest_id         = "other3xLinux64Guest"
 
   clone {
-    template_uuid = data.vsphere_virtual_machine.ubuntu.id
-    customize {
-      linux_options {
-        host_name = "k3s-control-02"
-        domain    = var.vm_domain
-      }
-      network_interface {}
-    }
+    template_uuid = data.vsphere_content_library_item.talos_ovf.id
+  }
+
+  extra_config = {
+    "guestinfo.talos.config" = data.local_file.talos_cp_config.content_base64
   }
 }
 
-resource "vsphere_virtual_machine" "k3s-control-03" {
-  name             = "k3s-control-03"
+resource "vsphere_virtual_machine" "k8s-control-03" {
+  name             = "k8s-control-03"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
 
-  num_cpus = 1
-  memory   = 2048
+  num_cpus = 2
+  memory   = 4096
 
   network_interface {
     network_id     = data.vsphere_network.network.id
@@ -134,31 +143,29 @@ resource "vsphere_virtual_machine" "k3s-control-03" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 32
+    size             = 10
   }
 
-  guest_id = "ubuntu64Guest"
+  enable_disk_uuid = true
+  guest_id         = "other3xLinux64Guest"
 
   clone {
-    template_uuid = data.vsphere_virtual_machine.ubuntu.id
-    customize {
-      linux_options {
-        host_name = "k3s-control-03"
-        domain    = var.vm_domain
-      }
-      network_interface {}
-    }
+    template_uuid = data.vsphere_content_library_item.talos_ovf.id
+  }
+
+  extra_config = {
+    "guestinfo.talos.config" = data.local_file.talos_cp_config.content_base64
   }
 }
 
-resource "vsphere_virtual_machine" "k3s-worker-01" {
-  name             = "k3s-worker-01"
+resource "vsphere_virtual_machine" "k8s-worker-01" {
+  name             = "k8s-worker-01"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
 
-  num_cpus = 4
-  memory   = 8192
+  num_cpus = 2
+  memory   = 4096
 
   network_interface {
     network_id     = data.vsphere_network.network.id
@@ -172,25 +179,23 @@ resource "vsphere_virtual_machine" "k3s-worker-01" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 64
+    size             = 10
   }
 
-  guest_id = "ubuntu64Guest"
+  enable_disk_uuid = true
+  guest_id         = "other3xLinux64Guest"
 
   clone {
-    template_uuid = data.vsphere_virtual_machine.ubuntu.id
-    customize {
-      linux_options {
-        host_name = "k3s-worker-01"
-        domain    = var.vm_domain
-      }
-      network_interface {}
-    }
+    template_uuid = data.vsphere_content_library_item.talos_ovf.id
+  }
+
+  extra_config = {
+    "guestinfo.talos.config" = data.local_file.talos_wk_config.content_base64
   }
 }
 
-resource "vsphere_virtual_machine" "k3s-worker-02" {
-  name             = "k3s-worker-02"
+resource "vsphere_virtual_machine" "k8s-worker-02" {
+  name             = "k8s-worker-02"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
@@ -210,25 +215,23 @@ resource "vsphere_virtual_machine" "k3s-worker-02" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 32
+    size             = 10
   }
 
-  guest_id = "ubuntu64Guest"
+  enable_disk_uuid = true
+  guest_id         = "other3xLinux64Guest"
 
   clone {
-    template_uuid = data.vsphere_virtual_machine.ubuntu.id
-    customize {
-      linux_options {
-        host_name = "k3s-worker-02"
-        domain    = var.vm_domain
-      }
-      network_interface {}
-    }
+    template_uuid = data.vsphere_content_library_item.talos_ovf.id
+  }
+
+  extra_config = {
+    "guestinfo.talos.config" = data.local_file.talos_wk_config.content_base64
   }
 }
 
-resource "vsphere_virtual_machine" "k3s-worker-03" {
-  name             = "k3s-worker-03"
+resource "vsphere_virtual_machine" "k8s-worker-03" {
+  name             = "k8s-worker-03"
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
   folder           = var.vm_folder
@@ -248,30 +251,28 @@ resource "vsphere_virtual_machine" "k3s-worker-03" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 32
+    size             = 10
   }
 
-  guest_id = "ubuntu64Guest"
+  enable_disk_uuid = true
+  guest_id         = "other3xLinux64Guest"
 
   clone {
-    template_uuid = data.vsphere_virtual_machine.ubuntu.id
-    customize {
-      linux_options {
-        host_name = "k3s-worker-03"
-        domain    = var.vm_domain
-      }
-      network_interface {}
-    }
+    template_uuid = data.vsphere_content_library_item.talos_ovf.id
+  }
+
+  extra_config = {
+    "guestinfo.talos.config" = data.local_file.talos_wk_config.content_base64
   }
 }
 
 output "vm_ips" {
   value = {
-    ip_1 = vsphere_virtual_machine.k3s-control-01.guest_ip_addresses
-    ip_2 = vsphere_virtual_machine.k3s-control-02.guest_ip_addresses
-    ip_3 = vsphere_virtual_machine.k3s-control-03.guest_ip_addresses
-    ip_4 = vsphere_virtual_machine.k3s-worker-01.guest_ip_addresses
-    ip_5 = vsphere_virtual_machine.k3s-worker-02.guest_ip_addresses
-    ip_6 = vsphere_virtual_machine.k3s-worker-03.guest_ip_addresses
+    ip_1 = vsphere_virtual_machine.k8s-control-01.guest_ip_addresses
+    ip_2 = vsphere_virtual_machine.k8s-control-02.guest_ip_addresses
+    ip_3 = vsphere_virtual_machine.k8s-control-03.guest_ip_addresses
+    ip_4 = vsphere_virtual_machine.k8s-worker-01.guest_ip_addresses
+    ip_5 = vsphere_virtual_machine.k8s-worker-02.guest_ip_addresses
+    ip_6 = vsphere_virtual_machine.k8s-worker-03.guest_ip_addresses
   }
 }
