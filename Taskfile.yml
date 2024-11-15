@@ -5,6 +5,7 @@ vars:
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
   TERRAFORM_DIR: "{{.ROOT_DIR}}/terraform"
+  TALOS_DIR: "{{.ROOT_DIR}}/talos"
 
 dotenv: [".config.env"]
 
@@ -17,6 +18,7 @@ includes:
   cluster: .taskfiles/ClusterTasks.yml
   precommit: .taskfiles/PrecommitTasks.yml
   terraform: .taskfiles/TerraformTasks.yml
+  talos: .taskfiles/TalosTasks.yml
 
 tasks:
 
@@ -44,6 +46,7 @@ tasks:
         pre-commit
         prettier
         sops
+        siderolabs/tap/talosctl
         stern
         terraform
         tflint
