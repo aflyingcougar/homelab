@@ -23,9 +23,9 @@ The Git repository contains the following directories under `infra`
 
 # Steps to Deploy Infrastructure
 
-## Create the Machine Configuration FIles
+## Create the Machine Configuration Files
 ### Generating Base Configurations
-At the root of the `infra/talos` directory:
+At the root of the `talos` directory:
 ```sh
 $ talosctl gen config vmware-cluster https://192.168.20.40:6443 --config-patch-control-plane @cp.patch.yaml --config-patch @all.patch.yaml
 created controlplane.yaml
