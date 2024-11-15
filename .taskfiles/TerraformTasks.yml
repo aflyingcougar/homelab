@@ -3,20 +3,46 @@ version: "3"
 
 tasks:
 
-  init:
+  # Cloudflare Tasks
+  cloudflare-init:
     desc: Initialize terraform dependencies
     dir: "{{.TERRAFORM_DIR}}/cloudflare"
     cmds:
       - terraform init {{.CLI_ARGS}}
 
-  plan:
+  cloudflare-plan:
     desc: Show the changes terraform will make
     dir: "{{.TERRAFORM_DIR}}/cloudflare"
     cmds:
       - terraform plan {{.CLI_ARGS}}
 
-  apply:
+  cloudflare-apply:
     desc: Apply the changes to Cloudflare
     dir: "{{.TERRAFORM_DIR}}/cloudflare"
     cmds:
       - terraform apply {{.CLI_ARGS}}
+
+  # VSphere tasks
+  vsphere-init:
+    desc: Initialize terraform dependencies
+    dir: "{{.TERRAFORM_DIR}}/vsphere"
+    cmds:
+      - terraform init {{.CLI_ARGS}}
+
+  vsphere-plan:
+    desc: Show the changes terraform will make
+    dir: "{{.TERRAFORM_DIR}}/vsphere"
+    cmds:
+      - terraform plan {{.CLI_ARGS}}
+
+  vsphere-apply:
+    desc: Apply the changes to vSphere
+    dir: "{{.TERRAFORM_DIR}}/vsphere"
+    cmds:
+      - terraform apply {{.CLI_ARGS}}
+
+  vsphere-destroy:
+    desc: Destroy the vSphere terraform
+    dir: "{{.TERRAFORM_DIR}}/vsphere"
+    cmds:
+      - terraform destroy {{.CLI_ARGS}}

@@ -1,0 +1,101 @@
+---
+version: "3"
+
+tasks:
+
+  init:
+    desc: Generate and validate configuration files
+    dir: "{{.TALOS_DIR}}"
+    deps: [gen-config]
+    cmds:
+      - talosctl validate --config controlplane.yaml --mode cloud
+      - talosctl validate --config worker.yaml --mode cloud
+
+  gen-config:
+    desc: Generate base configuration files
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - talosctl gen config homelab-{{.BOOTSTRAP_GIT_BRANCH}}-cluster https://{{.BOOTSTRAP_KUBE_VIP_ADDR}}:6443 --config-patch-control-plane @cp.patch.yaml --config-patch @all.patch.yaml {{.CLI_ARGS}}
+    sources:
+      - cp.patch.yaml
+      - all.patch.yaml
+    generates:
+      - controlplane.yaml
+      - worker.yaml
+      - talosconfig
+
+  bootstrap:
+    desc: Bootstrap the talos cluster
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - task: create-vms
+        ignore_error: true  # hacky way to make this command optional
+      - task: ping
+      - echo "Bootstrapping the cluster..."
+      - talosctl --talosconfig talosconfig bootstrap -e {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - talosctl --talosconfig talosconfig config endpoint {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - talosctl --talosconfig talosconfig config node {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - talosctl --talosconfig talosconfig kubeconfig {{.ROOT_DIR}}
+      - echo "Cluster bootstrap successful. The kubeconfig has been copied to '{{.ROOT_DIR}}'"
+
+  configure-vmtoolsd:
+    desc: Provide a talos credentails file for the talos-vmtoolsd daemonset to use.
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - echo "Configuring talos-vmtoolsd..."
+      - talosctl --talosconfig talosconfig -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} config new vmtoolsd-secret.yaml --roles os:admin
+      - kubectl --kubeconfig {{.ROOT_DIR}}/kubeconfig -n kube-system create secret generic talos-vmtoolsd-config --from-file=talosconfig=./vmtoolsd-secret.yaml
+      - rm -f vmtoolsd-secret.yaml
+      - echo "talos-vmtoolsd configured successfully."
+
+  create-vms:
+    desc: (Development only) Create VMs for talos cluster
+    dir: "{{.TALOS_DIR}}"
+    preconditions:
+      - sh: '[ "${BOOTSTRAP_GIT_BRANCH}" = "development" ]'
+        msg: "Skipping VM creation, because the envrionment is not 'development'."
+      - sh: test -f controlplane.yaml
+        msg: |
+          Control plane machine config was not found. Did you forget to create it?
+      - sh: test -f worker.yaml
+        msg: |
+          Worker machine config was not found. Did you forget to create it?
+    cmds:
+      - echo "Creating VMs for development environment..."
+      - task: :terraform:vsphere-init
+      - cmd: task terraform:vsphere-apply -- -auto-approve -var="control_machine_config={{.ENCODED_CONTROL_CONFIG}}" -var="worker_machine_config={{.ENCODED_WORKER_CONFIG}}"
+        silent: true
+    vars:
+      ENCODED_CONTROL_CONFIG:
+        sh: base64 < "{{.TALOS_DIR}}/controlplane.yaml"
+      ENCODED_WORKER_CONFIG:
+        sh: base64 < "{{.TALOS_DIR}}/worker.yaml"
+
+  ping:
+    silent: true
+    desc: Test talosctl connectivity to each node
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - echo "Testing node connectivity..."
+      - |
+        host_reachable=false
+        for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
+          for i in {1..{{.PING_MAX_ATTEMPTS}}}; do
+            if nc -z "${!var}" 50000 &> /dev/null; then
+              echo "Node at ${!var} is reachable at TCP 50000."
+              host_reachable=true
+              break
+            else
+              echo "Node at ${!var} is not reachable yet. Retrying in {{.PING_SLEEP}} seconds..."
+              sleep {{.PING_SLEEP}}
+            fi
+          done
+          if [[ "$host_reachable" == false ]]; then
+            echo "ERROR: Node at ${!var} is unreachable after {{.PING_MAX_ATTEMPTS}} attempts."
+            exit 1
+          fi
+        done
+      - echo "All nodes are reachable."
+    vars:
+      PING_MAX_ATTEMPTS: 5
+      PING_SLEEP: 10
