@@ -27,7 +27,6 @@ main() {
         verify_start
         verify_binaries
         verify_master_count
-        verify_ansible_hosts
         verify_metallb
         verify_kubevip
         verify_addressing
@@ -35,6 +34,7 @@ main() {
         verify_git_repository
         verify_cloudflare
         verify_success
+        verify_talos_hosts
     else
         # generate sops configuration file
         envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" \
@@ -44,6 +44,9 @@ main() {
             > "${PROJECT_DIR}/kubernetes/flux/vars/cluster-settings.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/flux/cluster.yaml" \
             > "${PROJECT_DIR}/kubernetes/flux/config/cluster.yaml"
+        # generate talos control plane patch
+        envsubst < "${PROJECT_DIR}/tmpl/talos/cp.patch.yaml" \
+            > "${PROJECT_DIR}/talos/${BOOTSTRAP_GIT_BRANCH}/cp.patch.yaml"
         # generate secrets
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/kubernetes/flux/vars/cluster-secrets.sops.yaml"
@@ -57,17 +60,17 @@ main() {
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/external-dns-secret.sops.yaml" \
             > "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" \
+        envsubst < "${PROJECT_DIR}/tmpl/terraform/cloudflare-secret.sops.yaml" \
             > "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
-        # generate ansible settings
-        envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" \
-            > "${PROJECT_DIR}/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
-        # generate ansible hosts file and secrets
-        generate_ansible_hosts
-        generate_ansible_host_secrets
+        # generate more secrets
         setup_github_webhook
         setup_weave_gitops
+
+        if [[ "${BOOTSTRAP_GIT_BRANCH}" == "development" ]]; then
+            generate_talos_tfvars
+        fi
+
         success
     fi
 }
@@ -151,7 +154,7 @@ verify_addressing() {
         exit 1
     fi
     # Verify the node IP addresses are on the same network as the metallb range
-    for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+    for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
         node_subnet=$(echo "${!var}" | cut -d. -f1,2,3)
         if [[ "${node_subnet}" != "${metallb_subnet_min}" ]]; then
             _log "ERROR(${FUNCNAME[0]})" "The subnet for node '${!var}' is not in the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
@@ -178,7 +181,7 @@ verify_addressing() {
         if [[ "${addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
             found_ingress="true"
         fi
-        for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+        for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
             if [[ "${!var}" == "${addr}" ]]; then
                 _log "ERROR(${FUNCNAME[0]})" "The IP for node '${!var}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
                 exit 1
@@ -277,16 +280,16 @@ verify_git_repository() {
 verify_master_count() {
     local master_node_count=
     master_node_count=0
-    for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+    for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
-        node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
+        node_control="BOOTSTRAP_TALOS_CONTROL_NODE_${node_id}"
         if [[ "${!node_control}" == "true" ]]; then
             master_node_count=$((master_node_count+1))
         fi
     done
     # Check for existance of master nodes and that their count is not an even number
     if [[ ${master_node_count} -eq 0 || $((master_node_count%2)) -eq 0 ]]; then
-      _log "ERROR(${FUNCNAME[0]})" "You must have 1, 3 or an odd number of master nodes >=3 inorder for etcd to have quorum"
+      _log "ERROR(${FUNCNAME[0]})" "You must have 1, 3, or an odd number of master nodes >=3 in order for etcd to have quorum"
       exit 1
     fi
     _log "INFO(${FUNCNAME[0]})" "Verified control plane node count"
@@ -313,35 +316,16 @@ verify_cloudflare() {
     fi
 }
 
-verify_ansible_hosts() {
+verify_talos_hosts() {
     local node_id=
     local node_addr=
-    local node_username=
-    local node_password=
     local node_control=
-    local node_hostname=
-    local node_host_key=
-    local default_control_node_prefix=
-    local default_worker_node_prefix=
-    local existing_host_key=
-    default_control_node_prefix="BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX"
-    default_worker_node_prefix="BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX"
-    _has_optional_envar "${default_control_node_prefix}"
-    _has_optional_envar "${default_worker_node_prefix}"
-    for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+    for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
-        node_addr="BOOTSTRAP_ANSIBLE_HOST_ADDR_${node_id}"
-        node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
-        node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
-        node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
-        node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
-        node_host_key=$(ssh-keyscan ${!var} 2>/dev/null)
-        existing_host_key=$(ssh-keygen -F ${!var} 2>/dev/null)
+        node_addr="BOOTSTRAP_TALOS_HOST_ADDR_${node_id}"
+        node_control="BOOTSTRAP_TALOS_CONTROL_NODE_${node_id}"
         _has_envar "${node_addr}"
-        _has_envar "${node_username}"
-        _has_envar "${node_password}" "true"
         _has_envar "${node_control}"
-        _has_optional_envar "${node_hostname}"
         if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" && "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
             _log "ERROR(${FUNCNAME[0]})" "The kube-vip IP '${BOOTSTRAP_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
@@ -352,18 +336,6 @@ verify_ansible_hosts() {
         fi
         if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
             _log "ERROR(${FUNCNAME[0]})" "The ingress load balancer IP '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should not be the same as the IP for node '${!node_addr}'"
-            exit 1
-        fi
-        if [ -n "$existing_host_key" ]; then
-            ssh-keygen -R ${!var} >/dev/null 2>&1
-            echo "$node_host_key" >> ~/.ssh/known_hosts
-        else
-            echo "$node_host_key" >> ~/.ssh/known_hosts
-        fi
-        if ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" "true"; then
-            _log "INFO(${FUNCNAME[0]})" "SSH into host '${!var}' with username '${!node_username}' was successfull"
-        else
-            _log "ERROR(${FUNCNAME[0]})" "SSH into host '${!var}' with username '${!node_username}'was NOT successful, did you copy over your SSH key?"
             exit 1
         fi
     done
@@ -418,57 +390,97 @@ generate_ansible_host_secrets() {
     done
 }
 
-generate_ansible_hosts() {
-    local worker_node_count=
-    default_control_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX:-k8s-}
-    default_worker_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX:-k8s-}
+generate_talos_tfvars() {
+    local control_node_count=0
+    local worker_node_count=0
+    local control_node_total=0
+    local worker_node_total=0
+
+    # Do the 'easy' substitutions first
+    envsubst < "${PROJECT_DIR}/tmpl/terraform/vsphere-terraform.tfvars" \
+        > "${PROJECT_DIR}/terraform/vsphere/terraform.tfvars"
+
+    # Calculate total counts of control and worker nodes
+    for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
+        local node_id="${var##*_}"
+        local node_control="BOOTSTRAP_TALOS_CONTROL_NODE_${node_id}"
+        if [[ "${!node_control}" == "true" ]]; then
+            control_node_total=$((control_node_total + 1))
+        else
+            worker_node_total=$((worker_node_total + 1))
+        fi
+    done
+
+    # Helper function to generate VM block
+    generate_vm_block() {
+        local vm_type="$1"
+        local node_count="$2"
+        local mac_id="$3"
+        local node_total="$4"
+        local cpus="$5"
+        local memory="$6"
+        local disk_size="$7"
+
+        printf "    {\n"
+        printf "        name        = \"k8s-${vm_type}-$(printf "%02d" ${node_count})\"\n"
+        printf "        mac_address = \"00:50:56:00:00:$(printf "%02d" ${mac_id})\"\n"
+        printf "        num_cpus        = ${cpus}\n"
+        printf "        memory      = ${memory}\n"
+        printf "        disk_size   = ${disk_size}\n"
+        printf "    }"
+
+        # Print a comma only if it's not the last VM
+        if [[ ${node_count} -lt ${node_total} ]]; then
+            printf ",\n"
+        else
+            printf "\n"
+        fi
+    }
+
+    # Open output block
     {
-        printf -- "---\n"
-        printf "kubernetes:\n"
-        printf "  children:\n"
-        printf "    master:\n"
-        printf "      hosts:\n"
-        master_node_count=0
-        worker_node_count=0
-        for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
-            node_id=$(echo "${var}" | awk -F"_" '{print $5}')
-            node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
+        printf "\ncontrol_plane_vms = [\n"
+
+        # Generate control plane VMs
+        for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
+            local node_id="${var##*_}"
+            local node_control="BOOTSTRAP_TALOS_CONTROL_NODE_${node_id}"
+
             if [[ "${!node_control}" == "true" ]]; then
-                master_node_count=$((master_node_count+1))
-                node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
-                host_key="${!node_hostname:-${default_control_node_prefix}}"
-                if [ "${host_key}" == "${default_control_node_prefix}" ]; then
-                    node_hostname=${default_control_node_prefix}${node_id}
-                else
-                    node_hostname=${!node_hostname}
-                fi
-                printf "        %s:\n" "${node_hostname}"
-                printf "          ansible_host: %s\n" "${!var}"
-            else
-                worker_node_count=$((worker_node_count+1))
+                control_node_count=$((control_node_count + 1))
+                generate_vm_block "control" "${control_node_count}" \
+                    "${node_id}" "${control_node_total}" \
+                    "${BOOTSTRAP_TERRAFORM_CONTROL_CPUS}" \
+                    "${BOOTSTRAP_TERRAFORM_CONTROL_MEMORY}" \
+                    "${BOOTSTRAP_TERRAFORM_CONTROL_DISK_SIZE}"
             fi
         done
-        if [[ ${worker_node_count} -gt 0 ]]; then
-            printf "    worker:\n"
-            printf "      hosts:\n"
-            for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
-                node_id=$(echo "${var}" | awk -F"_" '{print $5}')
-                node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
+
+        printf "]\nworker_vms = [\n"
+
+        # Generate worker VMs if there are any
+        if [[ ${worker_node_total} -gt 0 ]]; then
+            for var in "${!BOOTSTRAP_TALOS_HOST_ADDR_@}"; do
+                local node_id="${var##*_}"
+                local node_control="BOOTSTRAP_TALOS_CONTROL_NODE_${node_id}"
+
                 if [[ "${!node_control}" == "false" ]]; then
-                    node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
-                    host_key="${!node_hostname:-${default_worker_node_prefix}}"
-                    if [ "${host_key}" == "${default_worker_node_prefix}" ]; then
-                        node_hostname=${default_worker_node_prefix}${node_id}
-                    else
-                        node_hostname=${!node_hostname}
-                    fi
-                    printf "        %s:\n" "${node_hostname}"
-                    printf "          ansible_host: %s\n" "${!var}"
+                    worker_node_count=$((worker_node_count + 1))
+                    generate_vm_block "worker" "${worker_node_count}" \
+                        "${node_id}" "${worker_node_total}" \
+                        "${BOOTSTRAP_TERRAFORM_WORKER_CPUS}" \
+                        "${BOOTSTRAP_TERRAFORM_WORKER_MEMORY}" \
+                        "${BOOTSTRAP_TERRAFORM_WORKER_DISK_SIZE}"
                 fi
             done
         fi
-    } > "${PROJECT_DIR}/ansible/inventory/hosts.yml"
+
+        printf "]\n"
+    } >> "${PROJECT_DIR}/terraform/vsphere/terraform.tfvars"
+
+    _log "INFO(${FUNCNAME[0]})" "Development environment detected: terraform.tfvars generated successfully."
 }
+
 
 setup_github_webhook() {
     _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET"
