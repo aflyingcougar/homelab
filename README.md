@@ -1,6 +1,6 @@
-# Template for deploying k3s backed by Flux
+# Template for deploying a Talos cluster backed by Flux
 
-Highly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
+Highly opinionated template for deploying a single [Talos](https://talos.dev) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
 
 The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to your public repo.
 
@@ -17,10 +17,10 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 ## 👋 Introduction
 
-The following components will be installed in your [k3s](https://k3s.io/) cluster by default. Most are only included to get a minimum viable cluster up and running.
+The following components will be installed in your [Talos](https://talos.dev/) cluster by default. Most are only included to get a minimum viable cluster up and running.
 
 - [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
-- [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes
+- [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes ##TODO: REMOVE
 - [metallb](https://metallb.universe.tf/) - Load balancer for Kubernetes services
 - [cert-manager](https://cert-manager.io/) - Operator to request SSL certificates and store them as Kubernetes resources
 - [calico](https://www.tigera.io/project-calico/) - Container networking interface for inter pod and service networking
@@ -80,7 +80,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 1. Install the following CLI tools on your workstation, if you are **NOT** using [Homebrew](https://brew.sh/) on MacOS or Linux **ignore** steps 4 and 5.
 
-    * Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [weave-gitops](https://docs.gitops.weave.works/docs/installation/weave-gitops/), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [ipcalc](http://jodies.de/ipcalc), [jq](https://stedolan.github.io/jq/), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python-pip3](https://pypi.org/project/pip/), [pre-commit](https://github.com/pre-commit/pre-commit), [sops v3](https://github.com/mozilla/sops), [terraform](https://www.terraform.io), [yq v4](https://github.com/mikefarah/yq)
+    * Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [weave-gitops](https://docs.gitops.weave.works/docs/installation/weave-gitops/), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [ipcalc](http://jodies.de/ipcalc), [jq](https://stedolan.github.io/jq/), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python-pip3](https://pypi.org/project/pip/), [pre-commit](https://github.com/pre-commit/pre-commit), [sops v3](https://github.com/mozilla/sops), [talosctl](https://www.talos.dev/v1.8/talos-guides/install/talosctl/), [terraform](https://www.terraform.io), [yq v4](https://github.com/mikefarah/yq)
 
     * Recommended: [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [stern](https://github.com/stern/stern), [yamllint](https://github.com/adrienverge/yamllint)
 
@@ -179,77 +179,36 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task configure
     ```
 
-### ⚡ Preparing Fedora or Ubuntu Server with Ansible
+### ⚡ Preparing Talos
 
-📍 Here we will be running a Ansible Playbook to prepare Fedora or Ubuntu Server for running a Kubernetes cluster.
+📍 Here we will be using `talosctl` to prepare the nodes for running a Kubernetes cluster. After completion, Task will drop both a `talosconfig` and `kubeconfig` in the root project directory for use with interacting with your cluster via `talosctl` and `kubectl`.
 
-📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
+1. Ensure your control plane nodes are accessible via TCP port 50000 and 50001, as well as your worker nodes at TCP 50000. This is how Talosctl is able to connect to your remote nodes.
 
-1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. This is how Ansible is able to connect to your remote nodes.
+   [Talos Network Connectivity](https://www.talos.dev/v1.8/learn-more/talos-network-connectivity/)
 
-   [How to configure SSH key-based authentication](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server)
-
-2. Install the Ansible deps
+2. Generate and validate the machine configuration files
 
     ```sh
-    task ansible:init
+    task talos:init
     ```
 
-3. Verify Ansible can view your config
+3. Bootstrap the Talos cluster
 
     ```sh
-    task ansible:list
-    ```
-
-4. Verify Ansible can ping your nodes
-
-    ```sh
-    task ansible:ping
-    ```
-
-5. Run the Fedora/Ubuntu Server Ansible prepare playbook
-
-    ```sh
-    task ansible:prepare
-    ```
-
-6. Reboot the nodes (if not done in step 5)
-
-    ```sh
-    task ansible:force-reboot
-    ```
-
-### ⛵ Installing k3s with Ansible
-
-📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./kubeconfig` for use with interacting with your cluster with `kubectl`.
-
-☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
-
-1. Verify Ansible can view your config
-
-    ```sh
-    task ansible:list
-    ```
-
-2. Verify Ansible can ping your nodes
-
-    ```sh
-    task ansible:ping
-    ```
-
-3. Install k3s with Ansible
-
-    ```sh
-    task ansible:install
+    task talos:bootstrap
     ```
 
 4. Verify the nodes are online
 
     ```sh
     task cluster:nodes
-    # NAME           STATUS   ROLES                       AGE     VERSION
-    # k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
-    # k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
+    # NAME            STATUS   ROLES           AGE   VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE         KERNEL-VERSION   CONTAINER-RUNTIME
+    # talos-259-obn   Ready    <none>          15h   v1.31.2   192.168.20.123   <none>        Talos (v1.7.5)   6.6.33-talos     containerd://1.7.18
+    # talos-2gz-t33   Ready    control-plane   15h   v1.31.2   192.168.20.121   <none>        Talos (v1.7.5)   6.6.33-talos     containerd://1.7.18
+    # talos-4f8-olv   Ready    <none>          15h   v1.31.2   192.168.20.124   <none>        Talos (v1.7.5)   6.6.33-talos     containerd://1.7.18
+    # talos-hli-ffh   Ready    control-plane   15h   v1.31.2   192.168.20.122   <none>        Talos (v1.7.5)   6.6.33-talos     containerd://1.7.18
+    # talos-vzw-w9g   Ready    control-plane   15h   v1.31.2   192.168.20.120   <none>        Talos (v1.7.5)   6.6.33-talos     containerd://1.7.18
     ```
 
 ### ☁️ Configuring Cloudflare DNS with Terraform
@@ -261,19 +220,19 @@ If your domain already has existing DNS records **be sure to export those DNS se
 1. Pull in the Terraform deps
 
     ```sh
-    task terraform:init
+    task terraform:cloudflare-init
     ```
 
 2. Review the changes Terraform will make to your Cloudflare domain
 
     ```sh
-    task terraform:plan
+    task terraform:cloudflare-plan
     ```
 
 3. Have Terraform apply your Cloudflare settings
 
     ```sh
-    task terraform:apply
+    task terraform:cloudflare-apply
     ```
 
 If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present.
