@@ -8,21 +8,38 @@ tasks:
     dir: "{{.TALOS_DIR}}"
     deps: [gen-config]
     cmds:
-      - talosctl validate --config controlplane.yaml --mode cloud
-      - talosctl validate --config worker.yaml --mode cloud
+      - talosctl validate --mode cloud --config <(sops --decrypt controlplane.sops.yaml)
+      - talosctl validate --mode cloud --config <(sops --decrypt worker.sops.yaml)
+    preconditions:
+      - sh: test -f {{.SOPS_AGE_KEY_FILE}}
+        msg: |
+          Age key file is not found. Did you forget to create it?
+    vars:
+      SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
   gen-config:
-    desc: Generate base configuration files
+    desc: Generate base configuration files and encrypt
     dir: "{{.TALOS_DIR}}"
     cmds:
       - talosctl gen config homelab-{{.BOOTSTRAP_GIT_BRANCH}}-cluster https://{{.BOOTSTRAP_KUBE_VIP_ADDR}}:6443 --config-patch-control-plane @cp.patch.yaml --config-patch @all.patch.yaml {{.CLI_ARGS}}
+      - mv controlplane.yaml controlplane.sops.yaml
+      - mv worker.yaml worker.sops.yaml
+      - mv talosconfig {{.ROOT_DIR}}/talosconfig
+      - sops --encrypt --in-place controlplane.sops.yaml
+      - sops --encrypt --in-place worker.sops.yaml
     sources:
       - cp.patch.yaml
       - all.patch.yaml
     generates:
-      - controlplane.yaml
-      - worker.yaml
-      - talosconfig
+      - controlplane.sops.yaml
+      - worker.sops.yaml
+      - "{{.ROOT_DIR}}/talosconfig"
+    preconditions:
+      - sh: test -f {{.SOPS_AGE_KEY_FILE}}
+        msg: |
+          Age key file is not found. Did you forget to create it?
+    vars:
+      SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
   bootstrap:
     desc: Bootstrap the talos cluster
@@ -32,10 +49,10 @@ tasks:
         ignore_error: true  # hacky way to make this command optional
       - task: ping
       - echo "Bootstrapping the cluster..."
-      - talosctl --talosconfig talosconfig bootstrap -e {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
-      - talosctl --talosconfig talosconfig config endpoint {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
-      - talosctl --talosconfig talosconfig config node {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
-      - talosctl --talosconfig talosconfig kubeconfig {{.ROOT_DIR}}
+      - talosctl bootstrap -e {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - talosctl config endpoint {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - talosctl config node {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - talosctl kubeconfig {{.ROOT_DIR}}
       - echo "Cluster bootstrap successful. The kubeconfig has been copied to '{{.ROOT_DIR}}'"
 
   configure-vmtoolsd:
@@ -43,8 +60,8 @@ tasks:
     dir: "{{.TALOS_DIR}}"
     cmds:
       - echo "Configuring talos-vmtoolsd..."
-      - talosctl --talosconfig talosconfig -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} config new vmtoolsd-secret.yaml --roles os:admin
-      - kubectl --kubeconfig {{.ROOT_DIR}}/kubeconfig -n kube-system create secret generic talos-vmtoolsd-config --from-file=talosconfig=./vmtoolsd-secret.yaml
+      - talosctl -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} config new vmtoolsd-secret.yaml --roles os:admin
+      - kubectl -n kube-system create secret generic talos-vmtoolsd-config --from-file=talosconfig=./vmtoolsd-secret.yaml
       - rm -f vmtoolsd-secret.yaml
       - echo "talos-vmtoolsd configured successfully."
 
@@ -53,11 +70,11 @@ tasks:
     dir: "{{.TALOS_DIR}}"
     preconditions:
       - sh: '[ "${BOOTSTRAP_GIT_BRANCH}" = "development" ]'
-        msg: "Skipping VM creation, because the envrionment is not 'development'."
-      - sh: test -f controlplane.yaml
+        msg: "Skipping VM creation, because the environment is not 'development'."
+      - sh: test -f {{.TALOS_DIR}}/controlplane.sops.yaml
         msg: |
           Control plane machine config was not found. Did you forget to create it?
-      - sh: test -f worker.yaml
+      - sh: test -f {{.TALOS_DIR}}/worker.sops.yaml
         msg: |
           Worker machine config was not found. Did you forget to create it?
     cmds:
@@ -67,9 +84,9 @@ tasks:
         silent: true
     vars:
       ENCODED_CONTROL_CONFIG:
-        sh: base64 < "{{.TALOS_DIR}}/controlplane.yaml"
+        sh: sops --decrypt {{.TALOS_DIR}}/controlplane.sops.yaml | base64
       ENCODED_WORKER_CONFIG:
-        sh: base64 < "{{.TALOS_DIR}}/worker.yaml"
+        sh: sops --decrypt {{.TALOS_DIR}}/worker.sops.yaml | base64
 
   ping:
     silent: true

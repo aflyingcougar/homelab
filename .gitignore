@@ -16,3 +16,7 @@ xanmanning.k3s*
 .terraform
 .terraform.tfstate*
 terraform.tfstate*
+# Go-Task
+.task
+# Talos
+talosconfig
