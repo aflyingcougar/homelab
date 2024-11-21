@@ -7,3 +7,7 @@
         dhcp: true
         vip:
           ip: ${BOOTSTRAP_KUBE_VIP_ADDR}
+- op: add
+  path: /cluster/extraManifests
+  value:
+    - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml

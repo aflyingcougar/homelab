@@ -5,7 +5,7 @@ vars:
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
   TERRAFORM_DIR: "{{.ROOT_DIR}}/terraform"
-  TALOS_DIR: "{{.ROOT_DIR}}/talos/{{.BOOTSTRAP_GIT_BRANCH}}"
+  TALOS_DIR: "{{.ROOT_DIR}}/talos/{{.BOOTSTRAP_ENV}}"
 
 dotenv: [".config.env"]
 

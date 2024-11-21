@@ -7,3 +7,7 @@
         dhcp: true
         vip:
           ip: 192.168.20.140
+- op: add
+  path: /cluster/extraManifests
+  value:
+    - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
