@@ -1,5 +1,60 @@
+---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- gotk-components.yaml
-- gotk-sync.yaml
+  - gotk-components.yaml
+  - gotk-sync.yaml
+patches:
+  # Only archive the relevant directories
+  - patch: |
+      - op: add
+        path: /spec/ignore
+        value: |
+          # exclude all
+          /*
+          # include kubernetes directory
+          !/kubernetes
+    target:
+      kind: GitRepository
+      name: flux-system
+      namespace: flux-system
+  # Specify decryption provider and key secret
+  - patch: |
+      - op: add
+        path: /spec/wait
+        value: false
+      - op: add
+        path: /spec/decryption
+        value:
+          provider: sops
+          secretRef:
+            name: sops-age
+      - op: add
+        path: /spec/postBuild
+        value:
+          substituteFrom:
+            - kind: ConfigMap
+              name: cluster-settings
+            - kind: Secret
+              name: cluster-secrets
+    target:
+      kind: Kustomization
+      name: flux-system
+      namespace: flux-system
+  # Tuning of the Flux controllers -- ported from previous template. Should re-evaluate this at some point :)
+  - patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --concurrent=8
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --kube-api-qps=500
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --kube-api-burst=1000
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --requeue-dependency=5s
+    target:
+      kind: Deployment
+      name: "(kustomize-controller|helm-controller|source-controller)"
