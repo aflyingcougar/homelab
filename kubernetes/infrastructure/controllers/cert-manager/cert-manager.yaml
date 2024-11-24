@@ -29,7 +29,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: jetstack
-        namespace: flux-system
+        namespace: cert-manager
   maxHistory: 3
   install:
     createNamespace: true
