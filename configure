@@ -41,19 +41,17 @@ main() {
             > "${PROJECT_DIR}/.sops.yaml"
         # generate cluster settings
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/flux/cluster-settings.yaml" \
-            > "${PROJECT_DIR}/kubernetes/flux/vars/cluster-settings.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/flux/cluster.yaml" \
-            > "${PROJECT_DIR}/kubernetes/flux/config/cluster.yaml"
+            > "${PROJECT_DIR}/kubernetes/clusters/${BOOTSTRAP_ENV}/vars/cluster-settings.yaml"
         # generate talos control plane patch
         envsubst < "${PROJECT_DIR}/tmpl/talos/cp.patch.yaml" \
             > "${PROJECT_DIR}/talos/${BOOTSTRAP_GIT_BRANCH}/cp.patch.yaml"
         # generate secrets
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cluster-secrets.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/flux/vars/cluster-secrets.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/flux/vars/cluster-secrets.sops.yaml"
+            > "${PROJECT_DIR}/kubernetes/clusters/${BOOTSTRAP_ENV}/vars/cluster-secrets.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/clusters/${BOOTSTRAP_ENV}/vars/cluster-secrets.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cert-manager-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/cert-manager/cert-manager/issuers/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/cert-manager/cert-manager/issuers/secret.sops.yaml"
+            > "${PROJECT_DIR}/kubernetes/infrastructure/configs/issuers/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/infrastructure/configs/issuers/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cloudflare-ddns-secret.sops.yaml" \
             > "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"

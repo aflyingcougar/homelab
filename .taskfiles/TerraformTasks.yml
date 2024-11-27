@@ -24,6 +24,7 @@ tasks:
 
   # VSphere tasks
   vsphere-init:
+    silent: true
     desc: Initialize terraform dependencies
     dir: "{{.TERRAFORM_DIR}}/vsphere"
     cmds:
@@ -36,6 +37,7 @@ tasks:
       - terraform plan {{.CLI_ARGS}}
 
   vsphere-apply:
+    silent: true
     desc: Apply the changes to vSphere
     dir: "{{.TERRAFORM_DIR}}/vsphere"
     cmds:
