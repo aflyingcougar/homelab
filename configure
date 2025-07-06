@@ -44,7 +44,7 @@ main() {
             > "${PROJECT_DIR}/kubernetes/clusters/${BOOTSTRAP_ENV}/vars/cluster-settings.yaml"
         # generate talos control plane patch
         envsubst < "${PROJECT_DIR}/tmpl/talos/cp.patch.yaml" \
-            > "${PROJECT_DIR}/talos/${BOOTSTRAP_GIT_BRANCH}/cp.patch.yaml"
+            > "${PROJECT_DIR}/talos/${BOOTSTRAP_ENV}/cp.patch.yaml"
         # generate secrets
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/kubernetes/clusters/${BOOTSTRAP_ENV}/vars/cluster-secrets.sops.yaml"
@@ -53,11 +53,11 @@ main() {
             > "${PROJECT_DIR}/kubernetes/infrastructure/configs/issuers/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/infrastructure/configs/issuers/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cloudflare-ddns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
+            > "${PROJECT_DIR}/kubernetes/infrastructure/controllers/networking/cloudflare-ddns/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/infrastructure/controllers/networking/cloudflare-ddns/app/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/external-dns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
+            > "${PROJECT_DIR}/kubernetes/infrastructure/controllers/networking/external-dns/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/infrastructure/controllers/networking/external-dns/app/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/terraform/cloudflare-secret.sops.yaml" \
             > "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
