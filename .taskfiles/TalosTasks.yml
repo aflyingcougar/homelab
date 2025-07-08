@@ -45,9 +45,9 @@ tasks:
     desc: Bootstrap the talos cluster
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - task: create-vms
-        silent: true
-        ignore_error: true  # hacky way to make this command optional
+      # - task: create-vms
+      #   silent: true
+      #   ignore_error: true  # hacky way to make this command optional
       - task: ping-cluster
         vars: { NODES: all, PORT: 50000 }
       - task: ping-cluster
@@ -95,7 +95,7 @@ tasks:
         sh: sops --decrypt {{.TALOS_DIR}}/worker.sops.yaml | base64
 
   deploy-cilium:
-    internal: true
+    internal: false
     desc: Deploy Cilium CNI (with kube-proxy)
     dir: "{{.TALOS_DIR}}"
     cmds:
@@ -132,12 +132,12 @@ tasks:
         echo "Cilium helm repo located."
       - echo "Checking for valid machine config..."
       - |
-        if [[ "$(sops -d controlplane.sops.yaml | yq '.cluster.network.cni.name')" != "none" ]]; then
+        if [[ "$(talosctl get mc -o yaml -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}} | yq '.spec' | yq '.cluster.network.cni.name')" != "none" ]]; then
           echo "Control plane machine config does not have CNI set to 'none'. Did you forget to run 'task talos:init'?"
           exit 1
         fi
         echo "Control plane machine config verified."
-        if [[ "$(sops -d worker.sops.yaml | yq '.cluster.network.cni.name')" != "none" ]]; then
+        if [[ "$(talosctl get mc -o yaml -n {{.BOOTSTRAP_TALOS_HOST_ADDR_3}} | yq '.spec' | yq '.cluster.network.cni.name')" != "none" ]]; then
           echo "Worker machine config does not have CNI set to 'none'. Did you forget to run 'task talos:init'?"
           exit 1
         fi
@@ -148,6 +148,14 @@ tasks:
           Age key file is not found. Did you forget to create it?
     vars:
       SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
+
+  nuke:
+    silent: true
+    desc: 'Resets all nodes'
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - talosctl reset --wait -n {{.BOOTSTRAP_TALOS_HOST_ADDR_1}},{{.BOOTSTRAP_TALOS_HOST_ADDR_2}},{{.BOOTSTRAP_TALOS_HOST_ADDR_3}},{{.BOOTSTRAP_TALOS_HOST_ADDR_4}}
+      - talosctl reset --graceful=false -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
 
   ping-cluster:
     silent: true
@@ -189,16 +197,16 @@ tasks:
             host_reachable=true
             break
           else
-            echo "Host at {{.HOST}} is not reachable yet. Retrying in {{.PING_SLEEP}} seconds..."
+            echo "Host at {{.HOST}} is not reachable at TCP {{.PORT}}. Retrying in {{.PING_SLEEP}} seconds..."
             sleep {{.PING_SLEEP}}
           fi
         done
         if [[ "$host_reachable" == false ]]; then
-          echo "ERROR: Node at {{.HOST}} is unreachable after {{.PING_MAX_ATTEMPTS}} attempts."
+          echo "ERROR: Node at {{.HOST}} is unreachable at TCP {{.PORT}} after {{.PING_MAX_ATTEMPTS}} attempts."
           exit 1
         fi
     vars:
-      PING_MAX_ATTEMPTS: 5
+      PING_MAX_ATTEMPTS: 60
       PING_SLEEP: 10
       HOST: '{{.HOST}}'
       PORT: '{{.PORT}}'
