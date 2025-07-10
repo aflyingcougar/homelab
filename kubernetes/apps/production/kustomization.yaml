@@ -8,6 +8,10 @@ patches:
   - path: pihole-values.yaml
     target:
       kind: HelmRelease
+      name: pihole
+      namespace: pihole
   - path: csi-driver-nfs-values.yaml
     target:
       kind: HelmRelease
+      name: csi-driver-nfs
+      namespace: kube-system
