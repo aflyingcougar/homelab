@@ -11,3 +11,9 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   storageClassName: appdata-nfs
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: 192.168.20.8#/mnt/user/appdata-nfs#appdata
+    volumeAttributes:
+      server: 192.168.20.8
+      share: /mnt/user/appdata-nfs
