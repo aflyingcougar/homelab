@@ -1,0 +1,27 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pihole
+  namespace: pihole
+spec:
+  chart:
+    spec:
+      version: "2.26.0"
+  values:
+    serviceDhcp:
+      enabled: false
+    virtualHost: pihole02
+    persistentVolumeClaim:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: "5Gi"
+      storageClassName: appdata-nfs
+      subPath: "pihole"
+    admin:
+      enabled: true
+      existingSecret: "pihole-secret"
+      passwordKey: "adminPassword"
+    DNS1: "1.1.1.1"
+    DNS2: "1.0.0.1"
