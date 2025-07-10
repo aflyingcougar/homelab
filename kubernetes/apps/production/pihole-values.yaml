@@ -18,7 +18,6 @@ spec:
         - ReadWriteOnce
       size: "5Gi"
       storageClassName: appdata-nfs
-      subPath: "pihole"
     admin:
       enabled: true
       existingSecret: "pihole-secret"
