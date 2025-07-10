@@ -9,6 +9,8 @@ spec:
     spec:
       version: "4.11.0"
   values:
-    externalSnapshotter.enabled: true
-    controller.runOnControlPlane: true
-    controller.replicas: 2
+    externalSnapshotter:
+      enabled: true
+    controller:
+      runOnControlPlane: true
+      replicas: 2
