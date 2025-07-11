@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: networking
 resources:
   - ./secret.sops.yaml
+  - ./repository.yaml
   - ./helmrelease.yaml
 configMapGenerator:
   - name: cloudflare-ddns-configmap
