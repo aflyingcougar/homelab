@@ -3,15 +3,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../base/pihole
-  - ../base/csi-driver-nfs
 patches:
   - path: pihole-values.yaml
     target:
       kind: HelmRelease
       name: pihole
       namespace: pihole
-  - path: csi-driver-nfs-values.yaml
-    target:
-      kind: HelmRelease
-      name: csi-driver-nfs
-      namespace: kube-system
