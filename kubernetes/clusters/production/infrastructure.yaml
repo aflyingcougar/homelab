@@ -12,6 +12,10 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./kubernetes/infrastructure/controllers
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-settings
   prune: true
   wait: true
 ---
