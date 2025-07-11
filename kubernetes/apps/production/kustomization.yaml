@@ -3,9 +3,20 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../base/pihole
+  - ../base/default
 patches:
   - path: pihole-values.yaml
     target:
       kind: HelmRelease
       name: pihole
       namespace: pihole
+  - path: echo-server-values.yaml
+    target:
+      kind: HelmRelease
+      name: echo-server
+      namespace: default
+  - path: hajimari-values.yaml
+    target:
+      kind: HelmRelease
+      name: hajimari
+      namespace: default
