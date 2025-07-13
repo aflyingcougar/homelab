@@ -27,3 +27,20 @@ patches:
       kind: Kustomization
       name: flux-system
       namespace: flux-system
+  - patch: |-
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: not-used
+      spec:
+        ignore: |
+        # exclude all
+        /*
+        # include kubernetes directory
+        !/kubernetes
+    target:
+      group: source.toolkit.fluxcd.io
+      version: v1
+      kind: Kustomization
+      name: flux-system
+      namespace: flux-system
