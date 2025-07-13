@@ -41,6 +41,6 @@ patches:
     target:
       group: source.toolkit.fluxcd.io
       version: v1
-      kind: Kustomization
+      kind: GitRepository
       name: flux-system
       namespace: flux-system
