@@ -34,10 +34,10 @@ patches:
         name: not-used
       spec:
         ignore: |
-        # exclude all
-        /*
-        # include kubernetes directory
-        !/kubernetes
+          # exclude all
+          /*
+          # include kubernetes directory
+          !/kubernetes
     target:
       group: source.toolkit.fluxcd.io
       version: v1
