@@ -12,6 +12,8 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./kubernetes/infrastructure/controllers
+  dependsOn:
+    - name: sources
   postBuild:
     substituteFrom:
       - kind: ConfigMap
@@ -77,6 +79,8 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./kubernetes/infrastructure/storage
+  dependsOn:
+    - name: infra-controllers
   prune: true
   wait: true
 ---
