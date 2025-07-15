@@ -20,7 +20,6 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 The following components will be installed in your [Talos](https://talos.dev/) cluster by default. Most are only included to get a minimum viable cluster up and running.
 
 - [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
-- [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes ##TODO: REMOVE
 - [metallb](https://metallb.universe.tf/) - Load balancer for Kubernetes services
 - [cert-manager](https://cert-manager.io/) - Operator to request SSL certificates and store them as Kubernetes resources
 - [cilium](https://docs.cilium.io/en/stable/index.html) - Container networking interface for inter-pod and service networking

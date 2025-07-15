@@ -6,7 +6,7 @@
       - interface: eth0
         dhcp: true
         vip:
-          ip: ${BOOTSTRAP_KUBE_VIP_ADDR}
+          ip: ${BOOTSTRAP_TALOS_VIP_ADDR}
 - op: add
   path: /cluster/extraManifests
   value:

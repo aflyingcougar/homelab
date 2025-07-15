@@ -28,7 +28,7 @@ main() {
         verify_binaries
         verify_master_count
         verify_metallb
-        verify_kubevip
+        verify_talosvip
         verify_addressing
         verify_age
         verify_git_repository
@@ -141,7 +141,7 @@ _has_valid_ip() {
 }
 
 verify_addressing() {
-    local found_kube_vip="false"
+    local found_talos_vip="false"
     local found_k8s_gateway="false"
     local found_ingress="false"
     # Verify the metallb min and metallb ceiling are in the same network
@@ -159,10 +159,10 @@ verify_addressing() {
             exit 1
         fi
     done
-    # Verify the kube-vip IP is in the same network as the metallb range
-    kubevip_subnet=$(echo "${BOOTSTRAP_KUBE_VIP_ADDR}" | cut -d. -f1,2,3)
-    if [[ "${kubevip_subnet}" != "${metallb_subnet_min}" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The subnet for kupe-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' is not the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+    # Verify the talos-vip IP is in the same network as the metallb range
+    talosvip_subnet=$(echo "${BOOTSTRAP_TALOS_VIP_ADDR}" | cut -d. -f1,2,3)
+    if [[ "${talosvip_subnet}" != "${metallb_subnet_min}" ]]; then
+        _log "ERROR(${FUNCNAME[0]})" "The subnet for kupe-vip '${BOOTSTRAP_TALOS_VIP_ADDR}' is not the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
     # Depending on the IP address, verify if it should be in the metallb range or not
@@ -170,8 +170,8 @@ verify_addressing() {
     metallb_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
     for (( octet=metallb_octet_min; octet<=metallb_octet_ceil; octet++ )); do
         addr="${metallb_subnet_min}.${octet}"
-        if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
-            found_kube_vip="true"
+        if [[ "${addr}" == "${BOOTSTRAP_TALOS_VIP_ADDR}" ]]; then
+            found_talos_vip="true"
         fi
         if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
             found_k8s_gateway="true"
@@ -186,8 +186,8 @@ verify_addressing() {
             fi
         done
     done
-    if [[ "${found_kube_vip}" == "true" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The IP for kube-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+    if [[ "${found_talos_vip}" == "true" ]]; then
+        _log "ERROR(${FUNCNAME[0]})" "The IP for talos-vip '${BOOTSTRAP_TALOS_VIP_ADDR}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
     if [[ "${found_k8s_gateway}" == "false" ]]; then
@@ -242,9 +242,9 @@ verify_binaries() {
     fi
 }
 
-verify_kubevip() {
-    _has_envar "BOOTSTRAP_KUBE_VIP_ADDR"
-    _has_valid_ip "${BOOTSTRAP_KUBE_VIP_ADDR}" "BOOTSTRAP_KUBE_VIP_ADDR"
+verify_talosvip() {
+    _has_envar "BOOTSTRAP_TALOS_VIP_ADDR"
+    _has_valid_ip "${BOOTSTRAP_TALOS_VIP_ADDR}" "BOOTSTRAP_TALOS_VIP_ADDR"
 }
 
 verify_metallb() {
@@ -324,8 +324,8 @@ verify_talos_hosts() {
         node_control="BOOTSTRAP_TALOS_CONTROL_NODE_${node_id}"
         _has_envar "${node_addr}"
         _has_envar "${node_control}"
-        if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" && "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
-            _log "ERROR(${FUNCNAME[0]})" "The kube-vip IP '${BOOTSTRAP_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_TALOS_VIP_ADDR}" ]]; then
+            _log "ERROR(${FUNCNAME[0]})" "The talos-vip IP '${BOOTSTRAP_TALOS_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
         if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then

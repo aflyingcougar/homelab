@@ -21,7 +21,7 @@ tasks:
     desc: Generate base configuration files and encrypt
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - talosctl gen config homelab-{{.BOOTSTRAP_ENV}}-cluster https://{{.BOOTSTRAP_KUBE_VIP_ADDR}}:6443 --config-patch-control-plane @cp.patch.yaml --config-patch @all.patch.yaml {{.CLI_ARGS}}
+      - talosctl gen config homelab-{{.BOOTSTRAP_ENV}}-cluster https://{{.BOOTSTRAP_TALOS_VIP_ADDR}}:6443 --config-patch-control-plane @cp.patch.yaml --config-patch @all.patch.yaml {{.CLI_ARGS}}
       - mv controlplane.yaml controlplane.sops.yaml
       - mv worker.yaml worker.sops.yaml
       - mv talosconfig {{.ROOT_DIR}}/talosconfig
