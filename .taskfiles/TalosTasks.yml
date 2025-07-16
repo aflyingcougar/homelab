@@ -41,6 +41,35 @@ tasks:
     vars:
       SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
+  update-config:
+    desc: Decrypt and copy machine configs to the nginx server, then apply to running nodes with talosctl
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - sops --decrypt controlplane.sops.yaml > {{.NGINX_TALOS_CONFIG_PATH}}/control.yaml
+      - sops --decrypt worker.sops.yaml > {{.NGINX_TALOS_CONFIG_PATH}}/worker.yaml
+      - sops --decrypt controlplane.sops.yaml | talosctl -n {{.BOOTSTRAP_TALOS_HOST_ADDR_0}},{{.BOOTSTRAP_TALOS_HOST_ADDR_1}},{{.BOOTSTRAP_TALOS_HOST_ADDR_2}} apply-config -f /dev/stdin
+      - sops --decrypt worker.sops.yaml | talosctl -n {{.BOOTSTRAP_TALOS_HOST_ADDR_3}},{{.BOOTSTRAP_TALOS_HOST_ADDR_4}} apply-config -f /dev/stdin
+    preconditions:
+      - sh: test -f {{.SOPS_AGE_KEY_FILE}}
+        msg: |
+          Age key file is not found. Did you forget to create it?
+      - sh: test -d {{.NGINX_TALOS_CONFIG_PATH}}
+        msg: |
+          The nginx talos config path was not found ({{.NGINX_TALOS_CONFIG_PATH}}). Maybe the NFS server is down?
+    vars:
+      SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
+      NGINX_TALOS_CONFIG_PATH: /mnt/nginx-talos/www/talos/config
+
+  reboot:
+    desc: Gracefully reboot all nodes in the cluster, one at a time.
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_3}}
+      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_4}}
+      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_2}}
+      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_1}}
+      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+
   bootstrap:
     desc: Bootstrap the talos cluster
     dir: "{{.TALOS_DIR}}"
