@@ -491,6 +491,22 @@ kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}
 
 You should be able to access the dashboard at `https://kubernetes.${SECRET_DOMAIN}`
 
+### 🔄 Updating Machine Configs
+
+Procedure for updating machine configs without rebuilding the entire cluster.
+
+Initial configuration is delivered to the nodes at boostrap time via an iPXE & nginx server. Therefore, if we want to make updates to the machine config, we should update them in two locations: on the nginx server and then directly to the nodes. This ensures that (1) any new nodes (or nodes that have been reset) will be delivered the latest machine configs, and (2) all currently configured nodes will be updated to the latest machine configs.
+
+1. Generate and encrypt the new machine configs
+    ```sh
+    task talos:init
+    ```
+2. Push the changes to the repo
+3. Copy the updated machine configs to the nginx server & apply them to the running cluster
+    ```sh
+    task talos:update-config
+    ```
+
 ## 🐛 Debugging
 
 Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
