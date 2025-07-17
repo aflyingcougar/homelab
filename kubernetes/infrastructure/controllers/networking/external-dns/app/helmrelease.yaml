@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: external-dns
-        namespace: networking
+        namespace: flux-system
   maxHistory: 3
   install:
     createNamespace: true
