@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: cluster-apps-cert-manager
+  name: infra-controllers-cert-manager
   namespace: flux-system
 spec:
   path: ./kubernetes/infrastructure/controllers/cert-manager/cert-manager/app
@@ -22,11 +22,11 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: cluster-apps-cert-manager-issuers
+  name: infra-controllers-cert-manager-issuers
   namespace: flux-system
 spec:
   dependsOn:
-    - name: cluster-apps-cert-manager
+    - name: infra-controllers-cert-manager
   path: ./kubernetes/infrastructure/controllers/cert-manager/cert-manager/issuers
   prune: true
   sourceRef:
