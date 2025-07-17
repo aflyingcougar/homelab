@@ -9,3 +9,6 @@ resources:
   - ./jetstack.yaml
   - ./k8s-gateway.yaml
   - ./metallb.yaml
+  - ./metrics-server.yaml
+  - ./pihole.yaml
+  - ./stakater.yaml
