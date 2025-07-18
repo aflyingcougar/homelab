@@ -64,11 +64,27 @@ tasks:
     desc: Gracefully reboot all nodes in the cluster, one at a time.
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_3}}
-      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_4}}
-      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_2}}
-      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_1}}
-      - talosctl reboot --wait --nodes {{.BOOTSTRAP_TALOS_HOST_ADDR_0}}
+      - for: ["{{.BOOTSTRAP_TALOS_HOST_ADDR_3}}", "{{.BOOTSTRAP_TALOS_HOST_ADDR_4}}", "{{.BOOTSTRAP_TALOS_HOST_ADDR_2}}", "{{.BOOTSTRAP_TALOS_HOST_ADDR_1}}", "{{.BOOTSTRAP_TALOS_HOST_ADDR_0}}"]
+        task: reboot-single-node
+        vars:
+          NODE_IP: "{{.ITEM}}"
+
+  reboot-single-node:
+    desc: Gracefully a single node in the cluster.
+    dir: "{{.TALOS_DIR}}"
+    requires:
+      vars: [NODE_IP]
+    vars:
+      NODE_NAME:
+        sh: kubectl get nodes -o wide | grep {{.NODE_IP}} | awk '{print $1}'
+    cmds:
+      - echo "Finding node name for IP {{.NODE_IP}}"
+      - echo "Draining {{.NODE_NAME}}"
+      - kubectl drain {{.NODE_NAME}} --ignore-daemonsets --delete-emptydir-data --force
+      - echo "Rebooting {{.NODE_NAME}} ({{.NODE_IP}})"
+      - talosctl reboot --wait --nodes {{.NODE_IP}}
+      - echo "Uncordoning {{.NODE_NAME}}"
+      - kubectl uncordon {{.NODE_NAME}}
 
   bootstrap:
     desc: Bootstrap the talos cluster
