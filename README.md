@@ -1,23 +1,23 @@
-# Template for deploying a Talos cluster backed by Flux
+# My Homelab: A Talos Cluster Backed by Flux
 
-Highly opinionated template for deploying a single [Talos](https://talos.dev) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
+My homelab defined as code: a [Talos](https://talos.dev) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to your public repo.
+Using the [GitOps](https://about.gitlab.com/topics/gitops/) tool [Flux](https://toolkit.fluxcd.io/), this Git repository drives the state of my Kubernetes cluster. In addition, with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations, I'm able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to this public repo.
 
 ## Overview
 
-- [Introduction](https://github.com/onedr0p/flux-cluster-template#-introduction)
-- [Prerequisites](https://github.com/onedr0p/flux-cluster-template#-prerequisites)
-- [Repository structure](https://github.com/onedr0p/flux-cluster-template#-repository-structure)
-- [Lets go!](https://github.com/onedr0p/flux-cluster-template#-lets-go)
-- [Post installation](https://github.com/onedr0p/flux-cluster-template#-post-installation)
-- [Troubleshooting](https://github.com/onedr0p/flux-cluster-template#-troubleshooting)
-- [What's next](https://github.com/onedr0p/flux-cluster-template#-whats-next)
-- [Thanks](https://github.com/onedr0p/flux-cluster-template#-thanks)
+- [Introduction](https://github.com/aflyingcougar/homelab#-introduction)
+- [Prerequisites](https://github.com/aflyingcougar/homelab#-prerequisites)
+- [Repository structure](https://github.com/aflyingcougar/homelab#-repository-structure)
+- [Lets go!](https://github.com/aflyingcougar/homelab#-lets-go)
+- [Post installation](https://github.com/aflyingcougar/homelab#-post-installation)
+- [Troubleshooting](https://github.com/aflyingcougar/homelab#-troubleshooting)
+- [What's next](https://github.com/aflyingcougar/homelab#-whats-next)
+- [Thanks](https://github.com/aflyingcougar/homelab#-thanks)
 
 ## 👋 Introduction
 
-The following components will be installed in your [Talos](https://talos.dev/) cluster by default. Most are only included to get a minimum viable cluster up and running.
+The following components will be installed in my [Talos](https://talos.dev/) cluster by default. Most are only included to get a minimum viable cluster up and running.
 
 - [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
 - [metallb](https://metallb.universe.tf/) - Load balancer for Kubernetes services
@@ -26,18 +26,16 @@ The following components will be installed in your [Talos](https://talos.dev/) c
 - [external-dns](https://github.com/kubernetes-sigs/external-dns) - Operator to publish DNS records to Cloudflare (and other providers) based on Kubernetes ingresses
 - [k8s_gateway](https://github.com/ori-edge/k8s_gateway) - DNS resolver that provides local DNS to your Kubernetes ingresses
 - [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - Kubernetes ingress controller used for a HTTP reverse proxy of Kubernetes ingresses
-- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes
+<!-- - [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes -->
 
-_Additional applications include [hajimari](https://github.com/toboshii/hajimari), [error-pages](https://github.com/tarampampam/error-pages), [echo-server](https://github.com/Ealenn/Echo-Server), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), [reloader](https://github.com/stakater/Reloader), and [kured](https://github.com/weaveworks/kured)_
+_Additional applications include [hajimari](https://github.com/toboshii/hajimari), [error-pages](https://github.com/tarampampam/error-pages), [echo-server](https://github.com/Ealenn/Echo-Server), and [reloader](https://github.com/stakater/Reloader)._
 
 For provisioning the following tools will be used:
 
-- [Ansible](https://www.ansible.com) - Sets up the operating system and installs k3s
-- [Terraform](https://www.terraform.io) - Provisions an existing Cloudflare domain and certain DNS records to be used with your Kubernetes cluster
+<!-- - [Ansible](https://www.ansible.com) - Sets up the operating system and installs k3s -->
+- [Terraform](https://www.terraform.io) - Provisions an existing Cloudflare domain and certain DNS records to be used with the Kubernetes cluster
 
 ## 📝 Prerequisites
-
-**Note:** _This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be tweaked for the GitOps/Flux portion if there's a cluster working in one those environments._
 
 First and foremost some experience in debugging/troubleshooting problems **and a positive attitude is required** ;)
 
@@ -47,22 +45,34 @@ First and foremost some experience in debugging/troubleshooting problems **and a
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Fedora Server 36](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server).
-  - These nodes can be ARM64/AMD64 bare metal or VMs.
-  - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
-- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform and external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
+| Device                     | CPU                        | RAM    | Storage        | Function |
+|----------------------------|----------------------------|--------|----------------|----------|
+| HP EliteDesk 800 G3 DM 65W | Intel Core i7-6700 (4C/8T) | 32 GB | 250GB SATA SSD | Worker |
+| HP EliteDesk 800 G3 DM 65W | Intel Core i7-6700 (4C/8T) | 32 GB | 250GB SATA SSD | Worker |
+| HP EliteDesk 800 G3 DM 35W | Intel Core i5-6500T (4C/4T) | 16 GB | 120GB SATA SSD | Control Plane |
+| Dell OptiPlex 7040 (D10U) | Intel Core i5-6500 (4C/4T) | 16 GB | 1 TB SATA SSD | Control Plane |
+| Dell OptiPlex 7040 (D10U) | Intel Core i7-6700 (4C/4T) | 16 GB | 1 TB SATA SSD | Control Plane |
 
-📍 It is recommended to have 3 master nodes for a highly available control plane.
+- A [Cloudflare](https://www.cloudflare.com/) account with a domain, which is managed by Terraform and external-dns.
 
 ## 📂 Repository structure
 
-The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
+The Git repository contains the following directories under `kubernetes`.
 
 ```sh
-📁 kubernetes      # Kubernetes cluster defined as code
-├─📁 bootstrap     # Flux installation
-├─📁 flux          # Main Flux configuration of repository
-└─📁 apps          # Apps deployed into the cluster grouped by namespace
+📁 kubernetes         # Kubernetes cluster defined as code
+├─📁 apps             # Contains Helm releases with a custom configuration per cluster
+| ├─📁 base
+| ├─📁 production
+| └─📁 staging
+├─📁 clusters         # Contains the Flux configuration per cluster
+| ├─📁 production
+| └─📁 staging
+└─📁 infrastructure   # Contains common infra tools such as ingress-nginx and cert-manager
+  ├─📁 configs
+  ├─📁 controllers
+  ├─📁 sources
+  └─📁 storage
 ```
 
 ## 🚀 Lets go
