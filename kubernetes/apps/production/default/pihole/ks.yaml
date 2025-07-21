@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-pihole
   namespace: flux-system
 spec:
-  path: /kubernetes/apps/base/default/pihole
+  path: /kubernetes/apps/production/default/pihole
   prune: true
   sourceRef:
     kind: GitRepository

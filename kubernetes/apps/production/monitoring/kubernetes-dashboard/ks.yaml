@@ -7,7 +7,7 @@ metadata:
   labels:
     substitution.flux.home.arpa/disabled: "false"
 spec:
-  path: ./kubernetes/apps/base/monitoring/kubernetes-dashboard
+  path: ./kubernetes/apps/production/monitoring/kubernetes-dashboard
   prune: true
   sourceRef:
     kind: GitRepository
@@ -17,12 +17,6 @@ spec:
       kind: HelmRelease
       name: kubernetes-dashboard
       namespace: monitoring
-  # postBuild:
-  #   substituteFrom:
-  #     - kind: ConfigMap
-  #       name: cluster-settings
-  #     - kind: Secret
-  #       name: cluster-secrets
   interval: 30m
   retryInterval: 1m
   timeout: 3m
