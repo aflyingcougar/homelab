@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-hajimari
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/production/default/hajimari
+  path: /kubernetes/apps/production/default/hajimari
   prune: true
   sourceRef:
     kind: GitRepository
