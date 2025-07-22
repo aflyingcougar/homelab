@@ -11,6 +11,7 @@ resources:
   - ./kubernetes-dashboard.yaml
   - ./metallb.yaml
   - ./metrics-server.yaml
+  - ./mittwald.yaml
   - ./pihole.yaml
   - ./stakater.yaml
   - ./vaultwarden.yaml
