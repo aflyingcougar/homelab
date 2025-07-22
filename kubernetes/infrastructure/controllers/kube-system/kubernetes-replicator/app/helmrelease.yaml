@@ -28,9 +28,24 @@ spec:
     grantClusterAdmin: false
     args:
       - -resync-period=5m
+    namespacePrivileges:
+      - get
+      - watch
+      - list
+    replicationEnabled:
+      configMaps: false
+      privileges:
+        - get
+        - watch
+        - list
+        - create
+        - update
+        - patch
+        - delete
+      roles: false
+      roleBindings: false
+      secrets: true
+      serviceAccounts: false
     serviceAccount:
       create: true
       name: kubernetes-replicator
-      privileges:
-        - apiGroups: [""]
-          resources: ["secrets", "namespaces"]
