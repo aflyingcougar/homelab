@@ -5,14 +5,17 @@ metadata:
   name: "${SECRET_DOMAIN/./-}-production"
   namespace: networking
 spec:
-  secretName: "${SECRET_DOMAIN/./-}-production-tls"
-  issuerRef:
-    name: letsencrypt-production
-    kind: ClusterIssuer
   commonName: "${SECRET_DOMAIN}"
   dnsNames:
     - "${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  secretName: "${SECRET_DOMAIN/./-}-production-tls"
+  secretTemplate:
+    annotations:
+      replicator.v1.mittwald.de/replicate-to: "monitoring"
 # ---
 # apiVersion: cert-manager.io/v1
 # kind: Certificate
