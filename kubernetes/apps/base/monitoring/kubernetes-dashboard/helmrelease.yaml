@@ -44,7 +44,7 @@ spec:
       tls:
         - hosts:
             - *host
-          secretName: kubernetes-dashboard-tls
+          secretName: tulowiecki-com-production-tls
     metricsScraper:
       enabled: true
     serviceMonitor:
