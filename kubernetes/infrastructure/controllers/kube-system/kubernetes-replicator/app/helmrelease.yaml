@@ -33,4 +33,4 @@ spec:
       name: kubernetes-replicator
       privileges:
         - apiGroups: [""]
-          resources: ["secrets"]
+          resources: ["secrets", "namespaces"]
