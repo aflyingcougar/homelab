@@ -10,7 +10,7 @@ spec:
       version: "0.32.1"
   values:
     adminToken:
-      existingSecret: vaultwarden-secretsk lo
+      existingSecret: vaultwarden-secrets
       existingSecretKey: ADMIN_TOKEN
     domain: "https://bitwarden.${SECRET_DOMAIN}"
     ingress:
