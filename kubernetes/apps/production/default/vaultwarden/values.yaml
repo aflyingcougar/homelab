@@ -1,0 +1,46 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: default
+spec:
+  chart:
+    spec:
+      version: "0.32.1"
+  values:
+    # adminToken:
+    #   existingSecret: vaultwarden-secrets
+    #   existingSecretKey: ADMIN_TOKEN
+    domain: &host "bitwarden.${SECRET_DOMAIN}"
+    ingress:
+      additionalAnnotations:
+        external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+        hajimari.io/icon: shield-half-full
+      class: "nginx"
+      enabled: true
+      hostname: *host
+    # smtp:
+    #   host: smtp.zoho.com
+    #   existingSecret: vaultwarden-secrets
+    #   from: no-reply
+    #   fromName: "Vault Administrator"
+    #   username:
+    #     existingSecretKey: SMTP_USERNAME
+    #   password:
+    #     existingSecretKey: SMTP_PASSWORD
+    #   acceptInvalidHostnames: "false"
+    #   acceptInvalidCerts: "false"
+    storage:
+      attachments:
+        accessMode: "ReadWriteOnce"
+        class: "appdata-nfs"
+        keepPvc: true
+        name: "vaultwarden-attachments"
+        size: "5Gi"
+      data:
+        accessMode: "ReadWriteOnce"
+        class: "appdata-nfs"
+        keepPvc: true
+        name: "vaultwarden-data"
+        size: "5Gi"
