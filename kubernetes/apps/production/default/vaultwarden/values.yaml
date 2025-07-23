@@ -12,14 +12,14 @@ spec:
     adminToken:
       existingSecret: vaultwarden-secrets
       existingSecretKey: ADMIN_TOKEN
-    domain: "https://bitwarden.${SECRET_DOMAIN}"
+    domain: "https://bitwarden2.${SECRET_DOMAIN}"
     ingress:
       additionalAnnotations:
         external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
         hajimari.io/icon: shield-half-full
       class: "nginx"
       enabled: true
-      hostname: bitwarden.${SECRET_DOMAIN}
+      hostname: bitwarden2.${SECRET_DOMAIN}
     # smtp:
     #   host: smtp.zoho.com
     #   existingSecret: vaultwarden-secrets
