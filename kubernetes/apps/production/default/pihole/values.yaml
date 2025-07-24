@@ -18,8 +18,11 @@ spec:
     ingress:
       enabled: true
       hosts:
-        - pihole02.${SECRET_DOMAIN}
+        - &host pihole02.${SECRET_DOMAIN}
       ingressClassName: nginx
+      tls:
+        - hosts:
+            - *host
     persistentVolumeClaim:
       enabled: true
       accessModes:
