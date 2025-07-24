@@ -9,9 +9,17 @@ spec:
     spec:
       version: "2.26.1"
   values:
-    serviceDhcp:
-      enabled: false
-    virtualHost: pihole02
+    admin:
+      enabled: true
+      existingSecret: "pihole-secret"
+      passwordKey: "adminPassword"
+    DNS1: "1.1.1.1"
+    DNS2: "1.0.0.1"
+    ingress:
+      enabled: true
+      hosts:
+        - pihole02.${SECRET_DOMAIN}
+      ingressClassName: nginx
     persistentVolumeClaim:
       enabled: true
       accessModes:
@@ -19,9 +27,6 @@ spec:
       size: "6Gi"
       storageClass: appdata-nfs
       subPath: "pihole"
-    admin:
-      enabled: true
-      existingSecret: "pihole-secret"
-      passwordKey: "adminPassword"
-    DNS1: "1.1.1.1"
-    DNS2: "1.0.0.1"
+    serviceDhcp:
+      enabled: false
+    virtualHost: pihole02
