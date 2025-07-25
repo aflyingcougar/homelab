@@ -25,11 +25,7 @@ spec:
             - *host
     persistentVolumeClaim:
       enabled: true
-      accessModes:
-        - ReadWriteOnce
-      size: "6Gi"
-      storageClass: appdata-nfs
-      subPath: "pihole"
+      existingClaim: "pihole"
     serviceDhcp:
       enabled: false
     virtualHost: pihole02

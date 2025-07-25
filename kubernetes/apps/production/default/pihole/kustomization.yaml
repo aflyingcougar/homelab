@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../../base/default/pihole
   - ks.yaml
+  - pv.yaml
   - secret.sops.yaml
 patches:
   - path: values.yaml
