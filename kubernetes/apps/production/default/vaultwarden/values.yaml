@@ -32,15 +32,7 @@ spec:
     #   acceptInvalidHostnames: "false"
     #   acceptInvalidCerts: "false"
     storage:
-      attachments:
-        accessMode: "ReadWriteOnce"
-        class: "appdata-nfs"
-        keepPvc: true
-        name: "vaultwarden-attachments"
-        size: "5Gi"
-      data:
-        accessMode: "ReadWriteOnce"
-        class: "appdata-nfs"
-        keepPvc: true
-        name: "vaultwarden-data"
-        size: "5Gi"
+      existingVolumeClaim:
+        claimName: vaultwarden
+        dataPath: /data
+        attachmentsPath: /data/attachments
