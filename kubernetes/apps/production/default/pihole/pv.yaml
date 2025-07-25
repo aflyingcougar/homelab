@@ -17,8 +17,6 @@ spec:
       subdir: pihole
     volumeHandle: 192.168.20.8#mnt/user/appdata-nfs#pihole
   mountOptions:
-    - hard
-    - intr
     - nfsvers=4.1
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
