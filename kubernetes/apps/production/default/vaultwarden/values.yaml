@@ -31,6 +31,7 @@ spec:
     #     existingSecretKey: SMTP_PASSWORD
     #   acceptInvalidHostnames: "false"
     #   acceptInvalidCerts: "false"
+    resourceType: Deployment
     storage:
       existingVolumeClaim:
         claimName: vaultwarden
