@@ -26,6 +26,8 @@ spec:
     persistentVolumeClaim:
       enabled: true
       existingClaim: "pihole"
+    podAnnotations:
+      secret.reloader.stakater.com/reload: "pihole-secret"
     serviceDhcp:
       enabled: false
     virtualHost: pihole02
