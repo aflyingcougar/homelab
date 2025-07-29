@@ -13,6 +13,9 @@ spec:
       enabled: true
       hosts:
         - host: &host home.${SECRET_DOMAIN}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
       tls:
         - hosts:
             - *host
