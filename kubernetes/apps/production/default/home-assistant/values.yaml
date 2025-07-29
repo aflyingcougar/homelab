@@ -12,7 +12,7 @@ spec:
       className: nginx
       enabled: true
       hosts:
-        - &host home.${SECRET_DOMAIN}
+        - host: &host home.${SECRET_DOMAIN}
       tls:
         - hosts:
             - *host
