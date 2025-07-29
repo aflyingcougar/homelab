@@ -26,3 +26,5 @@ spec:
     persistence:
       enabled: true
       existingVolume: "home-assistant"
+    podAnnotations:
+      configmap.reloader.stakater.com/reload: hass-configuration
