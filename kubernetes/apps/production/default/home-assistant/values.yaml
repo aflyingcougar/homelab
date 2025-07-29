@@ -6,6 +6,10 @@ metadata:
   namespace: default
 spec:
   values:
+    configuration:
+      enabled: true
+      trusted_proxies:
+        - 10.0.0.0/8
     controller:
       type: StatefulSet
     ingress:
