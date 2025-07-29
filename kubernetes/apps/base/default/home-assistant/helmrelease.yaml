@@ -12,7 +12,7 @@ spec:
       version: 0.3.13
       sourceRef:
         kind: HelmRepository
-        name: home-assistant
+        name: pajikos
         namespace: flux-system
   maxHistory: 3
   install:
