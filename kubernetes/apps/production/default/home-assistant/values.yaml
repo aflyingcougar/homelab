@@ -1,0 +1,21 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: default
+spec:
+  values:
+    controller:
+      type: StatefulSet
+    ingress:
+      className: nginx
+      enabled: true
+      hosts:
+        - &host home.${SECRET_DOMAIN}
+      tls:
+        - hosts:
+            - *host
+    persistence:
+      enabled: true
+      existingVolume: "home-assistant"
