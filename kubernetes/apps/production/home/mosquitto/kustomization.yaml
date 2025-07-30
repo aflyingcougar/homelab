@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../../base/home/mosquitto
   - ks.yaml
+  - pv.yaml
 patches:
   - path: values.yaml
     target:
