@@ -12,6 +12,7 @@ resources:
   - ./metallb.yaml
   - ./metrics-server.yaml
   - ./mittwald.yaml
+  - ./naps.yaml
   - ./pajikos.yaml
   - ./pihole.yaml
   - ./stakater.yaml

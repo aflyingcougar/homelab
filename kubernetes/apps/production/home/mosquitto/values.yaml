@@ -1,0 +1,16 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mosquitto
+  namespace: home
+spec:
+  values:
+    mosquitto:
+      persistence:
+        enabled: true
+        path: /mosquitto/data
+        existingClaim: mosquitto-data
+        accessModes:
+          - ReadWriteOnce
+        size: 5Gi
