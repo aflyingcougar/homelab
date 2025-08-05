@@ -16,14 +16,13 @@ tasks:
       - sops --decrypt {{.KUBERNETES_DIR}}/clusters/{{.BOOTSTRAP_ENV}}/vars/cluster-secrets.sops.yaml | kubectl apply -f -
       - kubectl apply -f {{.KUBERNETES_DIR}}/clusters/{{.BOOTSTRAP_ENV}}/vars/cluster-settings.yaml
       - |
-        flux bootstrap github \
-          --token-auth \
+        flux bootstrap gitlab \
+          --deploy-token-auth \
           --owner={{.OWNER}} \
           --repository={{.REPOSITORY}} \
           --branch={{.BRANCH}} \
           --path=kubernetes/clusters/{{.BOOTSTRAP_ENV}} \
-          --context=admin@homelab-{{.BOOTSTRAP_ENV}}-cluster \
-          --personal
+          --context=admin@homelab-{{.BOOTSTRAP_ENV}}-cluster
     preconditions:
       - sh: test -f {{.SOPS_AGE_KEY_FILE}}
         msg: |
